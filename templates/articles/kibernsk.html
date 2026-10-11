@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Новостная статья - КиберНСК</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body class="page--sub">
+    {% include 'partials/header.html' %}
+    {% include 'partials/modal.html' %}
+
+    <main class="page content-page" style="padding-top: clamp(6.5rem, 10vw, 8rem); max-width: 1200px; margin: 0 auto; padding-left: clamp(1.5rem, 5vw, 2.7rem); padding-right: clamp(1.5rem, 5vw, 2.7rem); padding-bottom: 4rem;">
+        
+        <div class="article-hero">
+            <img src="/static/img/article1.jpg" alt="Фон статьи" class="article-hero__bg">
+            
+            <div class="article-hero__overlay"></div>
+            
+            <div class="article-hero__content">
+                <span class="article-hero__badge">Мероприятие</span>
+                
+                <h1 class="article-hero__title">
+                    КИБЕРНСК 2026: Соревнование в формате Attack-Defence
+                </h1>
+            </div>
+        </div>
+
+        <div class="article-body">
+            <time class="article-body__date">24-26 апреля 2026</time>
+            
+            <p>Студенты 3 курса направления «Информационная безопасность» ИРНИТУ успешно прошли отборочный этап всероссийских соревнований по кибербезопасности «Кибернск 2026», вышли в финал и получили приглашение очно выступить на втором этапе турнира. Университет на соревнованиях представили Афанасьев Денис, Бланков Антон, Бутаков Игорь и Кудрявцев Никита, для которых участие в таком масштабном мероприятии стало важным профессиональным опытом.</p>
+            
+            <h2>Ключевые темы мероприятия</h2>
+            <p>В центре внимания оказались прикладные решения для безопасности и стратегии импортозамещения. В рамках программы участники обсудили:</p>
+            <ul>
+                <li>Миграцию на отечественные операционные системы (Astra Linux);</li>
+                <li>Внедрение систем защиты от киберугроз нового поколения (UserGate);</li>
+                <li>Построение центров мониторинга информационной безопасности (SOC).</li>
+            </ul>
+            
+            <h2>Практическая часть: Attack-Defence</h2>
+            <p>Командам необходимо было одновременно решать две задачи: защищать собственный сервер, выявляя и устраняя уязвимости, и анализировать инфраструктуру соперников, чтобы находить слабые места в их сервисах и получать уникальные флаги, зашифрованные в преднамеренно уязвимых системах. Такой формат требует не только технической подготовки, но и умения быстро принимать решения, работать в команде и эффективно распределять роли в условиях ограниченного времени.</p>
+            
+            <h2>Итоги и перспективы</h2>
+            <p>По итогам соревнований команда университета заняла 10-е место среди 22 участников. Особенно значимым этот результат делает то, что студентам удалось опередить хозяев площадки — Новосибирский государственный технический университет, а также ТУСУР, который по праву считается одним из ведущих вузов страны в области информационной безопасности. Для команды это стало убедительным подтверждением высокого уровня подготовки и хорошего потенциала для дальнейшего участия в профильных турнирах.
+            </p>
+            <p>Участие в «Кибернск 2026» стало для студентов не только соревновательным испытанием, но и важным этапом профессионального становления. Работа в условиях ограниченного времени, командное взаимодействие и постоянный анализ уязвимостей позволили ребятам получить ценный практический опыт, который будет востребован как в учебе, так и в будущей карьере.</p>
+        </div>
+
+    <div class="article-gallery">
+        <div class="article-gallery__item">
+            <img src="/static/img/photo1.jpg" alt="Фото 1" class="article-gallery__img">
+        </div>
+        <div class="article-gallery__item">
+            <img src="/static/img/photo2.jpg" alt="Фото 1" class="article-gallery__img">
+        </div>
+    </div>
+
+        <div style="display: flex; justify-content: center; margin-top: 4rem; margin-bottom: 2rem;">
+            <a href="{{ url_for('expertise_page') }}" class="btn btn--primary" style="text-decoration: none;">
+                Больше нашей экспертизы
+            </a>
+        </div>
+        
+    </main>
+
+    <footer class="page-footer">
+        <div class="footer-container">
+            
+            <div class="footer-brand">
+                <a href="/" class="footer-logo">
+                    <img src="/static/img/icon.png" alt="Логотип" class="footer-logo__img">
+                    <span class="footer-logo__text">
+                        Центр компетенций<br>по кибербезопасности
+                    </span>
+                </a>
+                <p class="footer-copyright footer-copyright--desktop">&copy; 2026 Все права защищены</p>
+            </div>
+    
+            <div class="footer-links">
+                
+                <div class="footer-column">
+                    <h4 class="footer-column__title">Компания</h4>
+                    <nav class="footer-nav">
+                        <a href="/about" class="footer-nav__link">О нас</a>
+                        <a href="/expertise" class="footer-nav__link">Экспертиза</a>
+                        <a href="/privacy" class="footer-nav__link">Политика ПДн</a>
+                    </nav>
+                </div>
+    
+                <div class="footer-column">
+                    <h4 class="footer-column__title">Услуги</h4>
+                    <nav class="footer-nav">
+                        {% for s in services %}
+                        <a href="/services/{{ s.id }}" class="footer-nav__link">{{ s.title }}</a>
+                        {% endfor %}
+                    </nav>
+                </div>
+    
+            </div>
+            
+            <p class="footer-copyright footer-copyright--mobile">&copy; 2026 Все права защищены</p>
+    
+        </div>
+    </footer>
+
+    <script type="module" src="/static/js/page-common.js"></script>
+</body>
+</html>

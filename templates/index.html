@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Центр компетенций по кибербезопасности</title>
+  <link rel="icon" href="img/icon.png" type="image/png">
+  <link rel="stylesheet" href="/static/css/darkveil.css" />
+  <link rel="stylesheet" href="/static/css/border-glow.css" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/static/vendor/three/three.module.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="darkveil-wrap" aria-hidden="true">
+    <canvas id="darkveil-canvas" class="darkveil-canvas"></canvas>
+  </div>
+
+  {% include 'partials/header.html' %}
+  {% include 'partials/modal.html' %}
+
+  <main class="page">
+    <section class="hero">
+      <h1 class="hero__title">
+        Трансформируем защиту данных из зоны риска в ваше конкурентное преимущество
+      </h1>
+    </section>
+
+    <section class="section about">
+      <div class="about__container">
+
+        <canvas id="about-ascii" class="about-ascii" aria-hidden="true"></canvas>
+
+        <div class="about__text">
+          <h2 class="section__title1">О нас</h2>
+          <p style="line-height:1.7;opacity:0.9;margin-bottom:1rem;font-size: clamp(1.0rem, 1.5vw, 2.5rem);">
+            Центр компетенций по кибербезопасности ФГБОУ ВО ИРНИТУ помогает организациям выстраивать устойчивые практики в области защиты информации, обработки персональных данных и соответствия требованиям законодательства.
+          </p>
+          <a href="/about" class="about__btn">
+            Подробнее
+          </a>
+        </div>
+    
+        <div class="about__image">
+          <img src="/static/img/ckkd.png" alt="">
+        </div>
+    
+      </div>
+    </section>
+
+    <section class="section clients-section">
+      <div class="clients-bg-text" aria-hidden="true">нам доверяют</div>
+    
+      <div class="clients-content">
+        <div class="clients-grid">
+          <!-- Карточка 1 -->
+          <div class="client-card">
+            <img src="/static/img/nplus.png" alt="Клиент 1">
+          </div>
+          <!-- Карточка 2 -->
+          <div class="client-card">
+            <img src="/static/img/avito.png" alt="Клиент 2">
+          </div>
+          <!-- Карточка 3 -->
+          <div class="client-card">
+            <img src="/static/img/cian.png" alt="Клиент 3">
+          </div>
+          <!-- Карточка 4 -->
+          <div class="client-card">
+            <img src="/static/img/hunt.png" alt="Клиент 4">
+          </div>
+          <div class="client-card">
+            <img src="/static/img/mvd.png" alt="Клиент 5">
+          </div>
+          <div class="client-card">
+            <img src="/static/img/gidro.png" alt="Клиент 6">
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="directions">
+      <h2 class="section__title">Основные направления</h2>
+      <div class="directions__grid">
+        {% for s in services %}
+        <div
+          class="border-glow-card directions__cell directions__cell--{{ s.cell }}"
+          data-colors="#a78bfa|#f472b6|#38bdf8"
+          data-card-bg="#0a0614"
+          data-glow-color="265 85 75"
+          data-border-radius="32"
+          data-glow-radius="36"
+          data-fill-opacity="0.45"
+        >
+          <span class="edge-light"></span>
+          <a class="border-glow-inner direction-card" href="/services/{{ s.id }}">
+            <img
+            class="direction-card__thumb" 
+            src="/static/img/{{ s.thumb }}" 
+            alt=""
+            />
+            <div class="direction-card__copy">
+              <span class="direction-card__label">{{ s.title }}</span>
+              {% if s.hint %}
+              <span class="direction-card__hint">{{ s.hint }}</span>
+              {% endif %}
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="searchinform-block">
+        
+        <div class="searchinform-block__header">
+          <h3 class="searchinform-block__title">Берем на себя защиту, пока вы развиваете бизнес</h3>
+        </div>
+        
+        <div class="searchinform-grid">
+          
+          <!-- Карточка 1 -->
+          <div class="searchinform-card">
+            <span class="searchinform-card__number" aria-hidden="true">1</span>
+            <div class="searchinform-card__content">
+              <h4 class="searchinform-card__title">Лицензионное ПО</h4>
+              <p class="searchinform-card__text">
+                Нашим партнёром является SEARCHINFORM — ведущий российский разработчик в области информационной безопасности. Мы предоставляем лицензионное программное обеспечение для защиты от утечек данных и мониторинга действий сотрудников.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Карточка 2 -->
+          <div class="searchinform-card">
+            <span class="searchinform-card__number" aria-hidden="true">2</span>
+            <div class="searchinform-card__content">
+              <h4 class="searchinform-card__title">Внедрение и настройка</h4>
+              <p class="searchinform-card__text">
+                Берём на себя полный цикл развёртывания и тонкой настройки систем под специфику ваших бизнес-процессов.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Карточка 3 -->
+          <div class="searchinform-card">
+            <span class="searchinform-card__number" aria-hidden="true">3</span>
+            <div class="searchinform-card__content">
+              <h4 class="searchinform-card__title">Круглосуточный контроль</h4>
+              <p class="searchinform-card__text">
+                Обеспечиваем мониторинг инцидентов ИБ 24/7, оперативное реагирование на угрозы и регулярную отчётность.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Карточка 4 -->
+          <div class="searchinform-card">
+            <span class="searchinform-card__number" aria-hidden="true">4</span>
+            <div class="searchinform-card__content">
+              <h4 class="searchinform-card__title">Соответствие закону</h4>
+              <p class="searchinform-card__text">
+                Все продукты входят в реестр отечественного ПО и соответствуют требованиям регуляторов: ФСТЭК, ФСБ и Роскомнадзора.
+              </p>
+            </div>
+          </div>
+          
+        </div>
+
+    </section>
+
+    <section class="section section--cases" id="cases">
+      <h2 class="section__title">Наши кейсы</h2>
+      <div class="cases" id="cases-root">
+        <div class="cases__controls">
+          <button type="button" class="cases__btn" id="cases-prev" aria-label="Предыдущий кейс">&#8249;</button>
+          <span class="cases__counter" id="cases-counter">1 / 6</span>
+          <button type="button" class="cases__btn" id="cases-next" aria-label="Следующий кейс">&#8250;</button>
+        </div>
+        <div class="cases__viewport">
+          <div class="cases__track" id="cases-track"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="expertise">
+      <div style="max-width: 1200px; margin: 0 auto; width: 100%;">
+        
+        <div class="expertise-header-wrapper">
+    
+          <div class="expertise-header-main">
+              <h2 class="expertise-header__title">Экспертиза</h2>
+              <a href="/expertise" class="expertise-btn">Подробнее</a>
+          </div>
+          
+          <div class="expertise-header-tail">
+              Мероприятия / Статьи / Практика
+          </div>
+      
+      </div>
+        </div>
+      
+      <div class="expertise-grid">
+          <!-- Блок 1 -->
+          <a href="/articles/kibernsk" class="expertise-card">
+            <div class="expertise-card__image-wrapper" style="position: relative;">
+                
+                <!-- Вот наша плашка -->
+                <span class="expertise-card__badge">Мероприятие</span>
+                
+                <img src="/static/img/article1.jpg" alt="Статья 1" class="expertise-card__image">
+            </div>
+            <div class="expertise-card__footer">
+                <h3 class="expertise-card__title">Кибернск 2026: Соревнование в формате Attack-Defence</h3>
+                <span class="expertise-card__arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </span>
+            </div>
+        </a>
+  
+          <!-- Блок 2 -->
+          <a href="/article-2" class="expertise-card">
+              <div class="expertise-card__image-wrapper">
+                  <img src="/static/img/article2.jpg" alt="Статья 2" class="expertise-card__image">
+              </div>
+              <div class="expertise-card__footer">
+                  <h3 class="expertise-card__title">Статья 2</h3>
+                  <span class="expertise-card__arrow">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                  </span>
+              </div>
+          </a>
+  
+          <!-- Блок 3 -->
+          <a href="/article-3" class="expertise-card">
+              <div class="expertise-card__image-wrapper">
+                  <img src="/static/img/article3.jpg" alt="Статья 3" class="expertise-card__image">
+              </div>
+              <div class="expertise-card__footer">
+                  <h3 class="expertise-card__title">Статья 3</h3>
+                  <span class="expertise-card__arrow">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                  </span>
+              </div>
+          </a>
+      </div>
+  </section>
+
+    <section class="section" id="lead-footer">
+      <h2 class="section__title">Свяжитесь с нами</h2>
+      <div class="lead-block">
+        <p class="lead-block__text">Оставьте номер телефона — мы перезвоним и обсудим задачу.</p>
+        <form class="lead-form" id="lead-form-footer" data-source="footer" novalidate>
+          
+          <div class="lead-form__field">
+            <input type="tel" name="phone" placeholder="+7 (___) ___-__-__" autocomplete="tel" />
+            <p class="lead-form__field-msg" data-field-msg hidden></p>
+          </div>
+
+          <div class="lead-form__agreement-text" style="text-align: left; font-size: 0.8rem; line-height: 1.4; color: rgba(255, 255, 255, 0.7); margin-bottom: 0.5rem; margin-top: -0.3rem;">
+            Нажимая на кнопку, вы даете согласие на <a href="/privacy" target="_blank" style="color: #a78bfa; text-decoration: underline; text-decoration-color: rgba(167, 139, 250, 0.3);">обработку персональных данных</a>
+          </div>
+
+          <button type="submit" class="btn btn--primary">Оставить заявку</button>
+          <p class="lead-form__msg" data-form-msg></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  
+  <footer class="page-footer">
+    <div class="footer-container">
+        
+        <div class="footer-brand">
+            <a href="/" class="footer-logo">
+                <img src="/static/img/icon.png" alt="Логотип" class="footer-logo__img">
+                <span class="footer-logo__text">
+                    Центр компетенций<br>по кибербезопасности
+                </span>
+            </a>
+            <p class="footer-copyright footer-copyright--desktop">&copy; 2026 Все права защищены</p>
+        </div>
+
+        <div class="footer-links">
+            
+            <div class="footer-column">
+                <h4 class="footer-column__title">Компания</h4>
+                <nav class="footer-nav">
+                    <a href="/about" class="footer-nav__link">О нас</a>
+                    <a href="/expertise" class="footer-nav__link">Экспертиза</a>
+                    <a href="/privacy" class="footer-nav__link">Политика ПДн</a>
+                </nav>
+            </div>
+
+            <div class="footer-column">
+                <h4 class="footer-column__title">Услуги</h4>
+                <nav class="footer-nav">
+                    {% for s in services %}
+                    <a href="/services/{{ s.id }}" class="footer-nav__link">{{ s.title }}</a>
+                    {% endfor %}
+                </nav>
+            </div>
+
+        </div>
+
+        <p class="footer-copyright footer-copyright--mobile">&copy; 2026 Все права защищены</p>
+
+    </div>
+  </footer>
+
+  <script type="module" src="/static/js/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Экспертиза</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body class="page--sub">
+
+    {% include 'partials/header.html' %}
+    {% include 'partials/modal.html' %}
+
+    <main class="page" style="padding-top: clamp(6.5rem, 10vw, 8rem); max-width: 1200px; margin: 0 auto; padding-left: clamp(1.5rem, 5vw, 2.7rem); padding-right: clamp(1.5rem, 5vw, 2.7rem); padding-bottom: 4rem;">
+        
+        <h1 style="font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 700; color: #fff; margin-bottom: 3rem; text-align: center; letter-spacing: -0.02em;">Экспертиза</h1>
+
+        <div class="expertise-grid">
+            
+            <!-- Блок 1 -->
+            <a href="/articles/kibernsk" class="expertise-card">
+                <div class="expertise-card__image-wrapper" style="position: relative;">
+                    
+                    <span class="expertise-card__badge">Мероприятие</span>
+                    
+                    <img src="/static/img/article1.jpg" alt="Статья 1" class="expertise-card__image">
+                </div>
+                <div class="expertise-card__footer">
+                    <h3 class="expertise-card__title">Кибернск 2026: Соревнование в формате Attack-Defence</h3>
+                    <span class="expertise-card__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Блок 2 -->
+            <a href="/article-2" class="expertise-card">
+                <div class="expertise-card__image-wrapper">
+                    <img src="/static/img/article2.jpg" alt="Статья 2" class="expertise-card__image">
+                </div>
+                <div class="expertise-card__footer">
+                    <h3 class="expertise-card__title">2</h3>
+                    <span class="expertise-card__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Блок 3 -->
+            <a href="/article-3" class="expertise-card">
+                <div class="expertise-card__image-wrapper">
+                    <img src="/static/img/article3.jpg" alt="Статья 3" class="expertise-card__image">
+                </div>
+                <div class="expertise-card__footer">
+                    <h3 class="expertise-card__title">3</h3>
+                    <span class="expertise-card__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Блок 4 -->
+            <a href="/article-4" class="expertise-card">
+                <div class="expertise-card__image-wrapper">
+                    <img src="/static/img/article4.jpg" alt="Статья 4" class="expertise-card__image">
+                </div>
+                <div class="expertise-card__footer">
+                    <h3 class="expertise-card__title">4</h3>
+                    <span class="expertise-card__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Блок 5 -->
+            <a href="/article-5" class="expertise-card">
+                <div class="expertise-card__image-wrapper">
+                    <img src="/static/img/article5.jpg" alt="Статья 5" class="expertise-card__image">
+                </div>
+                <div class="expertise-card__footer">
+                    <h3 class="expertise-card__title">5</h3>
+                    <span class="expertise-card__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </span>
+                </div>
+            </a>
+
+        </div>
+
+        <section class="section section--cases" id="cases">
+            <h2 class="section__title">Наши кейсы</h2>
+            <div class="cases" id="cases-root">
+              <div class="cases__controls">
+                <button type="button" class="cases__btn" id="cases-prev" aria-label="Предыдущий кейс">&#8249;</button>
+                <span class="cases__counter" id="cases-counter">1 / 6</span>
+                <button type="button" class="cases__btn" id="cases-next" aria-label="Следующий кейс">&#8250;</button>
+              </div>
+              <div class="cases__viewport">
+                <div class="cases__track" id="cases-track"></div>
+              </div>
+            </div>
+          </section>
+
+        <section class="section" id="lead-footer">
+            <h2 class="section__title">Свяжитесь с нами</h2>
+            <div class="lead-block">
+              <p class="lead-block__text">Оставьте номер телефона — мы перезвоним и обсудим задачу.</p>
+              <form class="lead-form" id="lead-form-footer" data-source="footer" novalidate>
+                
+                <div class="lead-form__field">
+                  <input type="tel" name="phone" placeholder="+7 (___) ___-__-__" autocomplete="tel" />
+                  <p class="lead-form__field-msg" data-field-msg hidden></p>
+                </div>
+      
+                <div class="lead-form__agreement-text" style="text-align: left; font-size: 0.8rem; line-height: 1.4; color: rgba(255, 255, 255, 0.7); margin-bottom: 0.5rem; margin-top: -0.3rem;">
+                  Нажимая на кнопку, вы даете согласие на <a href="/privacy" target="_blank" style="color: #a78bfa; text-decoration: underline; text-decoration-color: rgba(167, 139, 250, 0.3);">обработку персональных данных</a>
+                </div>
+      
+                <button type="submit" class="btn btn--primary">Оставить заявку</button>
+                <p class="lead-form__msg" data-form-msg></p>
+              </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        <div class="footer-container">
+            
+            <div class="footer-brand">
+                <a href="/" class="footer-logo">
+                    <img src="/static/img/icon.png" alt="Логотип" class="footer-logo__img">
+                    <span class="footer-logo__text">
+                        Центр компетенций<br>по кибербезопасности
+                    </span>
+                </a>
+
+                <p class="footer-copyright footer-copyright--desktop">&copy; 2026 Все права защищены</p>
+            </div>
+    
+            <div class="footer-links">
+                
+                <div class="footer-column">
+                    <h4 class="footer-column__title">Компания</h4>
+                    <nav class="footer-nav">
+                        <a href="/about" class="footer-nav__link">О нас</a>
+                        <a href="/expertise" class="footer-nav__link">Экспертиза</a>
+                        <a href="/privacy" class="footer-nav__link">Политика ПДн</a>
+                    </nav>
+                </div>
+    
+                <div class="footer-column">
+                    <h4 class="footer-column__title">Услуги</h4>
+                    <nav class="footer-nav">
+                        {% for s in services %}
+                        <a href="/services/{{ s.id }}" class="footer-nav__link">{{ s.title }}</a>
+                        {% endfor %}
+                    </nav>
+                </div>
+    
+            </div>
+            
+            <p class="footer-copyright footer-copyright--mobile">&copy; 2026 Все права защищены</p>
+    
+        </div>
+    </footer>
+
+    <script type="module" src="/static/js/page-common.js"></script>
+    <script type="module" src="/static/js/index.js"></script>
+  
+</body>
+</html>

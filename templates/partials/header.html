@@ -1,0 +1,103 @@
+<header class="site-header" id="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="Центр компетенций по кибербезопасности — на главную">
+      <img class="brand__logo" src="/static/img/icon.png" width="80" height="80" alt="" />
+      <span class="brand__text">
+        <span class="brand__line">Центр компетенций</span>
+        <span class="brand__line">по кибербезопасности</span>
+      </span>
+    </a>
+
+    <button class="burger-btn" id="burger-btn" aria-label="Открыть меню">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="header__menu" id="header-menu">
+      <nav class="nav" aria-label="Основное меню">
+        <a class="nav__link" href="{{ url_for('about') }}">О нас</a>
+        <div class="nav__item nav__item--dropdown">
+          <span class="nav__link nav__dropdown-toggle" tabindex="0">Услуги</span>
+          <ul class="nav__sub">
+            {% for s in services %}
+            <li><a href="/services/{{ s.id }}">{{ s.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        <a class="nav__link" href="/expertise">Экспертиза</a>
+      </nav>
+      <button type="button" class="btn btn--primary" id="open-lead-modal" data-open-modal>Оставить заявку</button>
+    </div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const burgerBtn = document.getElementById("burger-btn");
+      const headerMenu = document.getElementById("header-menu");
+      const dropdownToggle = document.querySelector(".nav__dropdown-toggle"); 
+      const siteHeader = document.getElementById("site-header"); 
+      const headerInner = document.querySelector(".site-header__inner"); 
+
+      function handleMenuPosition() {
+        if (!headerMenu) return;
+
+        if (window.innerWidth <= 900) {
+          if (headerMenu.parentNode !== document.body) {
+            document.body.appendChild(headerMenu);
+          }
+        } else {
+          if (headerMenu.parentNode !== headerInner) {
+            headerInner.appendChild(headerMenu);
+            burgerBtn.classList.remove("is-active");
+            headerMenu.classList.remove("is-active");
+          }
+        }
+      }
+
+      // привет :DDDDDDD
+      handleMenuPosition();
+
+      window.addEventListener("resize", handleMenuPosition);
+
+      window.addEventListener("scroll", function () {
+        if (window.scrollY > 50) {
+          siteHeader.classList.add("is-scrolled");
+        } else {
+          siteHeader.classList.remove("is-scrolled");
+        }
+
+        if (window.innerWidth <= 900 && headerMenu && headerMenu.classList.contains("is-active")) {
+          burgerBtn.classList.remove("is-active");
+          headerMenu.classList.remove("is-active");
+        }
+      });
+
+      if (burgerBtn && headerMenu) {
+        burgerBtn.addEventListener("click", function (event) {
+          event.stopPropagation(); 
+          burgerBtn.classList.toggle("is-active");
+          headerMenu.classList.toggle("is-active");
+        });
+      }
+
+      document.addEventListener("click", function (event) {
+        if (window.innerWidth <= 900 && headerMenu && headerMenu.classList.contains("is-active")) {
+          if (!headerMenu.contains(event.target) && !burgerBtn.contains(event.target)) {
+            burgerBtn.classList.remove("is-active");
+            headerMenu.classList.remove("is-active");
+          }
+        }
+      });
+
+      if (dropdownToggle) {
+        dropdownToggle.addEventListener("click", function (e) {
+          if (window.innerWidth <= 900) {
+            e.preventDefault(); 
+            const parentDropdown = this.closest(".nav__item--dropdown");
+            parentDropdown.classList.toggle("is-open");
+          }
+        });
+      }
+    });
+  </script>
+</header>

@@ -1,0 +1,106 @@
+<div class="modal-backdrop" id="modal-backdrop" aria-hidden="true"></div>
+<div class="modal" id="lead-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+  <button type="button" class="modal__close" id="close-lead-modal" aria-label="Закрыть">&times;</button>
+  
+  <h2 id="modal-title">Оставить заявку</h2>
+  <p class="lead-block__text" style="margin-top:0;text-align:left;font-size:0.85rem;opacity:0.8;margin-bottom:1rem;">
+    Укажите номер телефона — мы свяжемся с вами.
+  </p>
+  
+  <form class="lead-form" id="lead-form-modal" data-source="modal" novalidate>
+    
+    <div class="lead-form__field">
+      <input type="tel" name="phone" placeholder="+7 (___) ___-__-__" autocomplete="tel" required />
+      <p class="lead-form__field-msg" data-field-msg hidden></p>
+    </div>
+    
+    <div class="lead-form__agreement-text" style="text-align: left; font-size: 0.8rem; line-height: 1.4; color: rgba(255, 255, 255, 0.7); margin-bottom: 0.5rem; margin-top: -0.3rem;">
+      Нажимая на кнопку, вы даете согласие на <a href="/privacy" target="_blank" style="color: #a78bfa; text-decoration: underline; text-decoration-color: rgba(167, 139, 250, 0.3);">обработку персональных данных</a>
+    </div>
+    
+    <button type="submit" class="btn btn--primary">Отправить</button>
+    <p class="lead-form__msg" data-form-msg></p>
+    
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const modalForm = document.getElementById('lead-form-modal');
+    if (!modalForm) return;
+
+    const fieldMsg = modalForm.querySelector('[data-field-msg]');
+    const formMsg = modalForm.querySelector('[data-form-msg]');
+    const closeBtn = document.getElementById('close-lead-modal');
+    const backdrop = document.getElementById('modal-backdrop');
+    const phoneInput = modalForm.querySelector('input[name="phone"]');
+
+    function isSuccessMessage(text) {
+      const t = text.trim().toLowerCase();
+      return (
+        t.includes('мы свяжемся') ||
+        t.includes('заявка отправлена') ||
+        t.includes('успешно') ||
+        t.includes('спасибо')
+      );
+    }
+
+    function clearPhoneError() {
+      if (!fieldMsg) return;
+      fieldMsg.textContent = '';
+      fieldMsg.hidden = true;
+    }
+
+    function showPhoneError(text) {
+      if (!fieldMsg) return;
+      fieldMsg.textContent = text;
+      fieldMsg.style.color = '#d97c7c'; 
+      fieldMsg.hidden = false;
+    }
+
+    if (phoneInput) {
+      phoneInput.addEventListener('input', clearPhoneError);
+    }
+
+    if (formMsg && fieldMsg) {
+      const observer = new MutationObserver(function () {
+        const text = formMsg.textContent.trim();
+        if (!text) return;
+
+        if (isSuccessMessage(text)) {
+          formMsg.classList.remove('lead-form__msg--err');
+          formMsg.classList.add('lead-form__msg--ok');
+          formMsg.style.color = '#86efac'; 
+          clearPhoneError();
+          return;
+        }
+
+        showPhoneError(text);
+        formMsg.textContent = ''; 
+      });
+
+      observer.observe(formMsg, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    }
+
+    function resetModalForm() {
+      setTimeout(() => {
+        modalForm.reset();
+        clearPhoneError();
+        if (formMsg) {
+          formMsg.textContent = '';
+          formMsg.classList.remove('lead-form__msg--err', 'lead-form__msg--ok');
+        }
+      }, 300);
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', resetModalForm);
+    if (backdrop) backdrop.addEventListener('click', resetModalForm);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') resetModalForm();
+    });
+  });
+</script>

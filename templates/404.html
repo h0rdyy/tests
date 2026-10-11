@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Страница не найдена</title>
+  <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+<body class="page--sub">
+  {% include 'partials/header.html' %}
+  {% include 'partials/modal.html' %}
+
+  <main class="page" style="padding-top:6rem;text-align:center;padding-bottom:4rem">
+    <h1 style="font-size:1.75rem;margin-bottom:1rem">404</h1>
+    <p style="opacity:0.85;margin-bottom:1.5rem">Страница не найдена.</p>
+    <a href="/">На главную</a>
+  </main>
+  <footer class="page-footer">
+    <div class="footer-container">
+        
+        <div class="footer-brand">
+            <a href="/" class="footer-logo">
+                <img src="/static/img/icon.png" alt="Логотип" class="footer-logo__img">
+                <span class="footer-logo__text">
+                    Центр компетенций<br>по кибербезопасности
+                </span>
+            </a>
+            <p class="footer-copyright footer-copyright--desktop">&copy; 2026 Все права защищены</p>
+        </div>
+
+        <div class="footer-links">
+            
+            <div class="footer-column">
+                <h4 class="footer-column__title">Компания</h4>
+                <nav class="footer-nav">
+                    <a href="/about" class="footer-nav__link">О нас</a>
+                    <a href="/expertise" class="footer-nav__link">Экспертиза</a>
+                    <a href="/privacy" class="footer-nav__link">Политика ПДн</a>
+                </nav>
+            </div>
+
+            <div class="footer-column">
+                <h4 class="footer-column__title">Услуги</h4>
+                <nav class="footer-nav">
+                    {% for s in services %}
+                    <a href="/services/{{ s.id }}" class="footer-nav__link">{{ s.title }}</a>
+                    {% endfor %}
+                </nav>
+            </div>
+
+        </div>
+        
+        <!-- Копирайт для Мобильных (скрыт на ПК, показывается в самом низу) -->
+        <p class="footer-copyright footer-copyright--mobile">&copy; 2026 Все права защищены</p>
+
+    </div>
+   </footer>
+
+  <script type="module" src="/static/js/page-common.js"></script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>О нас — Центр компетенций по кибербезопасности</title>
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/static/vendor/three/three.module.js"
+    }
+  }
+  </script>
+  
+  <style>
+    /* Добавленные стили для плавного открытия */
+    .team-card__hidden {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+    }
+    .team-card__hidden.is-open {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="page--sub">
+  {% include 'partials/header.html' %}
+  {% include 'partials/modal.html' %}
+
+  <main class="page text-page">
+    <div class="text-page__container">
+      <h1 class="text-page__title" style="text-align: left;">О центре</h1>
+      
+      <div class="text-page__row">
+        
+        <div class="text-page__content">
+          <p>
+            Центр компетенций по кибербезопасности помогает организациям выстраивать устойчивые практики
+            в области защиты информации, обработки персональных данных и соответствия требованиям законодательства.
+          </p>
+          <p>
+            Мы сочетаем юридическую экспертизу в сфере информационного права с практическим пониманием процессов
+            в ИТ и бизнесе — от политик и договоров до реагирования на инциденты и подготовки к проверкам.
+          </p>
+        </div>
+
+        <div class="text-page__image">
+          <canvas id="about-ascii" class="about-ascii" aria-hidden="true"></canvas>
+          <img src="/static/img/ckkd.png" alt="О центре">
+        </div>
+
+      </div> 
+
+      <div class="team-section">
+        
+        <div class="leader-card">
+          <div class="leader-card__image-wrapper">
+            <img class="leader-card__image" src="/static/img/person1.jpg" alt="Руководитель">
+          </div>
+          
+          <div class="leader-card__info">
+            <div class="leader-card__header">
+              <span class="leader-card__role">Руководитель</span>
+              <h2 class="leader-card__name">Мамедов Эльшан</h2>
+            </div>
+            
+            <div class="leader-card__details">
+              
+              <div class="case-field">
+                <span class="case-field__label">Краткая информация</span>
+                <p class="case-field__text">Кандидат юридических наук с 16-летним стажем работы в госсекторе и глубокой экспертизой в сфере информационной безопасности и защиты персональных данных.</p>
+              </div>
+
+              <div class="team-card__hidden">
+                <div class="case-field">
+                  <span class="case-field__label">Образование</span>
+                  <ul class="case-field__list">
+                    <li>Высшее юридическое</li>
+                    <li>Кандидат юридических наук</li>
+                    <li>Профессиональная переподготовка от ФСТЭК России в сфере информационной безопасности</li>
+                  </ul>
+                </div>
+                
+                <div class="case-field">
+                  <span class="case-field__label">Профессиональный опыт</span>
+                  <ul class="case-field__list">
+                    <li>Доцент Центра компетенций по кибербезопасности ФГБОУ ВО ИРНИТУ</li>
+                    <li>Старший преподаватель кафедры Информационных технологий Восточно-Сибирского Института МВД России</li>
+                    <li>Преподаватель-эксперт Академии Softline</li>
+                    <li>Эксперт-методолог консалтинговой компании Б-152</li>
+                    <li>Ведущий юрист консалтинговой компании Lukash & Partners</li>
+                    <li>Ведущий юрист группы компаний Эн+</li>
+                  </ul>
+                </div>
+
+                <div class="case-field">
+                  <span class="case-field__label">Стаж работы в госсекторе</span>
+                  <p class="case-field__text">16 лет</p>
+                </div>
+                
+                <div class="case-field">
+                  <span class="case-field__label">Экспертная и общественная деятельность</span>
+                  <ul class="case-field__list">
+                    <li>Совет Торгово-промышленной палаты РФ по развитию ИТ и цифровой экономики</li>
+                    <li>Российская ассоциация специалистов по защите данных (RPPA)</li>
+                    <li>Межрегиональная ассоциация теоретиков государства и права</li>
+                    <li>Представитель рабочей группы при Минцифры Иркутской области по созданию киберполигона</li>
+                  </ul>
+                </div>
+
+                <div class="case-field">
+                  <span class="case-field__label">Награды</span>
+                  <ul class="case-field__list">
+                    <li>Благодарность Губернатора Иркутской области за деятельность в сфере ИТ  </li>
+                    <li>Благодарность МВД России за содействие в раскрытии преступлений тяжкого характера</li>
+                  </ul>
+                </div>
+
+                <div class="case-field">
+                  <span class="case-field__label">Опыт сотрудничества</span>
+                  <p class="case-field__text">ФСТЭК России, ФСБ России, МВД России, СК РФ, Минцифры РФ, Роскомнадзор, Аппарат Губернатора субъекта РФ, РусГидро, ГК ПИК, Цемент Восток, Авито, Циан, Хантфлоу.</p>
+                </div>
+
+              </div>
+            </div>
+
+            <button type="button" class="btn btn--primary js-expand-btn" style="align-self: flex-start; margin-top: 1.5rem;">Полный опыт и образование</button>
+          </div>
+        </div>
+
+        <div class="leader-card">
+          <div class="leader-card__image-wrapper">
+            <img class="leader-card__image" src="/static/img/person2.jpg" alt="Заместитель руководителя">
+          </div>
+
+          <div class="leader-card__info">
+            <div class="leader-card__header">
+              <span class="leader-card__role">Заместитель руководителя</span>
+              <h2 class="leader-card__name">Маринов Александр</h2>
+            </div>
+            
+            <div class="leader-card__details">
+
+              <div class="case-field">
+                <span class="case-field__label">Краткая информация</span>
+                <p class="case-field__text">Кандидат экономических наук, инженер с 20-летним опытом работы в государственном секторе и надзорных органах.</p>
+              </div>
+
+              <div class="team-card__hidden">
+                <div class="case-field">
+                  <span class="case-field__label">Образование</span>
+                  <ul class="case-field__list">
+                    <li>Высшее экономическое</li>
+                    <li>Высшее техническое (инженер по направлению «Информационные системы и технологии»)</li>
+                    <li>Кандидат экономических наук</li>
+                    <li>Профессиональная переподготовка от ФСТЭК России в сфере информационной безопасности</li>
+                  </ul>
+                </div>
+                
+                <div class="case-field">
+                  <span class="case-field__label">Профессиональный опыт</span>
+                  <ul class="case-field__list">
+                    <li>Администратор программного обеспечения Главного Управления Банка России по Камчатской области РКЦ</li>
+                    <li>Специалист по ВЭД и информационным технологиям Администрации муниципального образования Олюторского района Главный</li>
+                    <li>Начальник информационного отдела Фонда бывших работников государственных силовых структур ФБРГСС «Иркутский Бастион»</li>
+                    <li>Начальник планово-экономического отдела ООО «Восточно Сибирская Коммерческая Компания»</li>
+                  </ul>
+                </div>
+
+                <div class="case-field">
+                  <span class="case-field__label">Стаж работы в госсекторе</span>
+                  <p class="case-field__text">20 лет</p>
+                </div>
+                
+                <div class="case-field">
+                  <span class="case-field__label">Экспертная и общественная деятельность</span>
+                  <ul class="case-field__list">
+                    <li>Представитель рабочей группы при Минцифры Иркутской области по созданию киберполигона</li>
+                  </ul>
+                </div>
+                
+                <div class="case-field">
+                  <span class="case-field__label">Награды</span>
+                  <ul class="case-field__list">
+                    <li>Благодарность МВД России за содействие в раскрытии преступлений тяжкого характера</li>
+                    <li>Ведомственный знак отличия МВД России «За проявленное профессиональное мастерство»</li>
+                  </ul>
+                </div>
+
+                <div class="case-field">
+                  <span class="case-field__label">Опыт сотрудничества</span>
+                  <p class="case-field__text">ФСТЭК России, ФСБ России, МВД России, СК РФ, Аппарат Губернатора субъекта РФ.</p>
+                </div>
+
+              </div>
+            </div>
+
+
+            <button type="button" class="btn btn--primary js-expand-btn" style="align-self: flex-start; margin-top: 1.5rem;">Полный опыт и образование</button>
+          </div>
+        </div>
+
+      </div> 
+
+
+
+      <section class="section section--cases" id="cases" style="margin-top: 4rem;">
+        <h2 class="section__title">Наши кейсы</h2>
+        <div class="cases" id="cases-root">
+          <div class="cases__controls">
+            <button type="button" class="cases__btn" id="cases-prev" aria-label="Предыдущий кейс">&#8249;</button>
+            <span class="cases__counter" id="cases-counter">1 / 6</span>
+            <button type="button" class="cases__btn" id="cases-next" aria-label="Следующий кейс">&#8250;</button>
+          </div>
+          <div class="cases__viewport">
+            <div class="cases__track" id="cases-track"></div>
+          </div>
+        </div>
+      </section>
+      
+
+      <section class="section" id="lead-footer">
+        <h2 class="section__title">Свяжитесь с нами</h2>
+        <div class="lead-block">
+          <p class="lead-block__text">Оставьте номер телефона — мы перезвоним и обсудим задачу.</p>
+          <form class="lead-form" id="lead-form-footer" data-source="footer" novalidate>
+            
+            <div class="lead-form__field">
+              <input type="tel" name="phone" placeholder="+7 (___) ___-__-__" autocomplete="tel" />
+              <p class="lead-form__field-msg" data-field-msg hidden></p>
+            </div>
+  
+            <div class="lead-form__agreement-text" style="text-align: left; font-size: 0.8rem; line-height: 1.4; color: rgba(255, 255, 255, 0.7); margin-bottom: 0.5rem; margin-top: -0.3rem;">
+              Нажимая на кнопку, вы даете согласие на <a href="/privacy" target="_blank" style="color: #a78bfa; text-decoration: underline; text-decoration-color: rgba(167, 139, 250, 0.3);">обработку персональных данных</a>
+            </div>
+  
+            <button type="submit" class="btn btn--primary">Оставить заявку</button>
+            <p class="lead-form__msg" data-form-msg></p>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    <div class="footer-container">
+
+        <div class="footer-brand">
+            <a href="/" class="footer-logo">
+                <img src="/static/img/icon.png" alt="Логотип" class="footer-logo__img">
+                <span class="footer-logo__text">
+                    Центр компетенций<br>по кибербезопасности
+                </span>
+            </a>
+            <p class="footer-copyright footer-copyright--desktop">&copy; 2026 Все права защищены</p>
+        </div>
+
+        <div class="footer-links">
+            
+            <div class="footer-column">
+                <h4 class="footer-column__title">Компания</h4>
+                <nav class="footer-nav">
+                    <a href="/about" class="footer-nav__link">О нас</a>
+                    <a href="/expertise" class="footer-nav__link">Экспертиза</a>
+                    <a href="/privacy" class="footer-nav__link">Политика ПДн</a>
+                </nav>
+            </div>
+
+            <div class="footer-column">
+                <h4 class="footer-column__title">Услуги</h4>
+                <nav class="footer-nav">
+                    {% for s in services %}
+                    <a href="/services/{{ s.id }}" class="footer-nav__link">{{ s.title }}</a>
+                    {% endfor %}
+                </nav>
+            </div>
+
+        </div>
+        
+        <p class="footer-copyright footer-copyright--mobile">&copy; 2026 Все права защищены</p>
+
+    </div>
+  </footer>
+
+  <script type="module" src="/static/js/page-common.js"></script>
+  <script type="module" src="/static/js/index.js"></script>
+
+  <script type="module">
+    import { initCasesCarousel } from "/static/js/cases-carousel.js";
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      const casesRoot = document.getElementById("cases-root");
+      if (casesRoot) {
+        initCasesCarousel(casesRoot);
+      }
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const expandButtons = document.querySelectorAll('.js-expand-btn');
+
+      expandButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const cardInfo = this.closest('.leader-card__info');
+          if (!cardInfo) return;
+
+          const hiddenContent = cardInfo.querySelector('.team-card__hidden');
+          if (!hiddenContent) return;
+
+          const isOpen = hiddenContent.classList.contains('is-open');
+
+          if (isOpen) {
+            hiddenContent.style.maxHeight = "0px";
+            hiddenContent.classList.remove('is-open');
+            this.textContent = 'Полный опыт и образование';
+          } else {
+            hiddenContent.classList.add('is-open');
+            hiddenContent.style.maxHeight = hiddenContent.scrollHeight + "px";
+            this.textContent = 'Скрыть';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
