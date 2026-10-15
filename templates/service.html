@@ -747,6 +747,18 @@
         Здесь будет подробное описание услуги «{{ service.Title }}»...
       </p>
     {% endif %}
+
+    {% if services_by_direction and service.Title in services_by_direction %}
+    <section class="db-services" style="margin-top:3rem;">
+      <h2 style="font-size:1.4rem;margin-bottom:1rem;color:#fff;">Услуги по этому направлению</h2>
+      {% for dbs in services_by_direction[service.Title] %}
+      <div style="border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.25rem;margin-bottom:1rem;background:rgba(10,6,20,.6);">
+        <h3 style="font-size:1.1rem;margin-bottom:.5rem;color:#e8e6f2;">{{ dbs.Title }}</h3>
+        <div style="line-height:1.7;opacity:.9;color:#e8e6f2;">{{ dbs.Description|safe }}</div>
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
   </main>
 
   <footer class="page-footer">

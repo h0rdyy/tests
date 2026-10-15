@@ -88,6 +88,49 @@ func staffByID(db *sql.DB, id string) (Staff, error) {
 	return item, err
 }
 
+// listPublishedServices возвращает опубликованные услуги из БД для публичного сайта.
+func listPublishedServices(db *sql.DB) []AdminService {
+	rows, err := db.Query(`SELECT id,direction,title,description,status FROM services WHERE status='published' ORDER BY direction,id`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var result []AdminService
+	for rows.Next() {
+		var item AdminService
+		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Status) == nil {
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
+// publishedServicesByDirection группирует опубликованные услуги по направлениям.
+func publishedServicesByDirection(db *sql.DB) map[string][]AdminService {
+	grouped := make(map[string][]AdminService)
+	for _, s := range listPublishedServices(db) {
+		grouped[s.Direction] = append(grouped[s.Direction], s)
+	}
+	return grouped
+}
+
+// listAllServices возвращает все услуги админки (черновики и опубликованные).
+func listAllServices(db *sql.DB) ([]AdminService, error) {
+	rows, err := db.Query(`SELECT id,direction,title,description,status FROM services ORDER BY direction,id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var result []AdminService
+	for rows.Next() {
+		var item AdminService
+		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Status) == nil {
+			result = append(result, item)
+		}
+	}
+	return result, rows.Err()
+}
+
 // serviceByID возвращает услугу админки по идентификатору.
 func serviceByID(db *sql.DB, id string) (AdminService, error) {
 	var item AdminService

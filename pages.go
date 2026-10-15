@@ -54,14 +54,23 @@ type Article struct {
 
 // PageData содержит данные, передаваемые страницам сайта.
 type PageData struct {
-	Services      []Service
-	Service       Service
-	Articles      []Article
-	Article       Article
-	Staff         Staff
-	Staffs        []Staff
-	AdminService  AdminService
-	AdminServices []AdminService
+	Services                 []Service
+	AdminServicesByDirection map[string][]AdminService
+	Service                  Service
+	Articles                 []Article
+	Article                  Article
+	Staff                    Staff
+	Staffs                   []Staff
+	AdminService             AdminService
+	AdminServices            []AdminService
+}
+
+// publicPageData возвращает направления услуг и опубликованные услуги из БД.
+func publicPageData(db *sql.DB) PageData {
+	return PageData{
+		Services:                 services,
+		AdminServicesByDirection: publishedServicesByDirection(db),
+	}
 }
 
 // newRouter собирает маршруты сайта и раздачу статических файлов.
@@ -82,31 +91,33 @@ func pageHandler(db *sql.DB, logger *log.Logger) http.HandlerFunc {
 				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 				return
 			}
-			renderTemplate(w, "index.html", PageData{Services: services}, logger)
+			renderTemplate(w, "index.html", publicPageData(db), logger)
 		case r.URL.Path == "/about":
 			if r.Method != http.MethodGet {
 				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 				return
 			}
-			renderTemplate(w, "about.html", PageData{Services: services}, logger)
+			renderTemplate(w, "about.html", publicPageData(db), logger)
 		case r.URL.Path == "/privacy":
 			if r.Method != http.MethodGet {
 				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 				return
 			}
-			renderTemplate(w, "privacy.html", PageData{Services: services}, logger)
+			renderTemplate(w, "privacy.html", publicPageData(db), logger)
 		case r.URL.Path == "/expertise":
 			if r.Method != http.MethodGet {
 				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 				return
 			}
-			renderTemplate(w, "expertise.html", PageData{Services: services, Articles: publishedArticles(db)}, logger)
+			data := publicPageData(db)
+			data.Articles = publishedArticles(db)
+			renderTemplate(w, "expertise.html", data, logger)
 		case r.URL.Path == "/articles/kibernsk":
 			if r.Method != http.MethodGet {
 				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 				return
 			}
-			renderTemplate(w, "articles/kibernsk.html", PageData{Services: services}, logger)
+			renderTemplate(w, "articles/kibernsk.html", publicPageData(db), logger)
 		case r.URL.Path == "/admin/articles/new":
 			if r.Method != http.MethodGet {
 				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -128,7 +139,7 @@ func pageHandler(db *sql.DB, logger *log.Logger) http.HandlerFunc {
 				http.Error(w, "method not allowed", 405)
 				return
 			}
-			expertView(w, db, strings.TrimPrefix(r.URL.Path, "/experts/"), logger)
+			expertView(w, r, db, strings.TrimPrefix(r.URL.Path, "/experts/"), logger)
 		case r.URL.Path == "/admin/articles/new/save":
 			if r.Method != http.MethodPost {
 				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -165,7 +176,7 @@ func pageHandler(db *sql.DB, logger *log.Logger) http.HandlerFunc {
 
 // renderPublicPage отображает существующие публичные страницы сайта.
 func renderPublicPage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger *log.Logger) {
-	data := PageData{Services: services}
+	data := publicPageData(db)
 	name := ""
 	status := http.StatusOK
 	switch {
@@ -224,13 +235,15 @@ func renderArticle(w http.ResponseWriter, r *http.Request, db *sql.DB, logger *l
 	err := db.QueryRow(`SELECT slug,title,publish_date,author,tags,content_md,cover_path FROM articles WHERE slug=? AND status='published'`, slug).
 		Scan(&article.Slug, &article.Title, &article.PublishDate, &article.Author, &tagsJSON, &article.ContentMD, &coverPath)
 	if err != nil {
-		renderTemplateStatus(w, "404.html", PageData{Services: services}, http.StatusNotFound, logger)
+		renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
 		return
 	}
 	_ = json.Unmarshal([]byte(tagsJSON), &article.Tags)
 	article.CoverURL = mediaURL(coverPath)
 	article.ContentHTML = markdownHTML(article.ContentMD)
-	renderTemplateStatus(w, "articles/dynamic.html", PageData{Services: services, Article: article}, http.StatusOK, logger)
+	data := publicPageData(db)
+	data.Article = article
+	renderTemplateStatus(w, "articles/dynamic.html", data, http.StatusOK, logger)
 }
 
 // saveArticle сохраняет статью и её обложку из формы редактора.
@@ -389,18 +402,17 @@ func renderAdminForm(w http.ResponseWriter, logger *log.Logger) {
 }
 
 // servicePage находит услугу и отображает её существующий HTML-шаблон.
-func servicePage(w http.ResponseWriter, r *http.Request, logger *log.Logger) {
+func servicePage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger *log.Logger) {
 	value := strings.TrimPrefix(r.URL.Path, "/services/")
 	id, err := strconv.Atoi(value)
 	if err != nil || id < 1 || id > len(services) {
-		renderTemplateStatus(w, "404.html", PageData{Services: services}, http.StatusNotFound, logger)
+		renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
 		return
 	}
 
-	renderTemplate(w, "service.html", PageData{
-		Services: services,
-		Service:  services[id-1],
-	}, logger)
+	data := publicPageData(db)
+	data.Service = services[id-1]
+	renderTemplate(w, "service.html", data, logger)
 }
 
 // renderTemplate выполняет шаблон с успешным HTTP-статусом.
@@ -419,14 +431,16 @@ func renderNamedTemplate(w http.ResponseWriter, name string, data PageData, logg
 		return
 	}
 	if err := tpl.ExecuteWriter(pongo2.Context{
-		"services":      data.Services,
-		"service":       data.Service,
-		"articles":      data.Articles,
-		"article":       data.Article,
-		"staff":         data.Staff,
-		"staffs":        data.Staffs,
-		"admin_service": data.AdminService,
-		"directions":    directions,
+		"services":              data.Services,
+		"service":               data.Service,
+		"articles":              data.Articles,
+		"article":               data.Article,
+		"staff":                 data.Staff,
+		"staffs":                data.Staffs,
+		"admin_service":         data.AdminService,
+		"admin_services":        data.AdminServices,
+		"services_by_direction": data.AdminServicesByDirection,
+		"directions":            directions,
 	}, w); err != nil {
 		logger.Printf("template execute error %s: %v", name, err)
 	}
@@ -445,14 +459,16 @@ func renderTemplateStatus(w http.ResponseWriter, name string, data PageData, sta
 
 	w.WriteHeader(status)
 	if err := tpl.ExecuteWriter(pongo2.Context{
-		"services":      data.Services,
-		"service":       data.Service,
-		"articles":      data.Articles,
-		"article":       data.Article,
-		"staff":         data.Staff,
-		"staffs":        data.Staffs,
-		"admin_service": data.AdminService,
-		"directions":    directions,
+		"services":              data.Services,
+		"service":               data.Service,
+		"articles":              data.Articles,
+		"article":               data.Article,
+		"staff":                 data.Staff,
+		"staffs":                data.Staffs,
+		"admin_service":         data.AdminService,
+		"admin_services":        data.AdminServices,
+		"services_by_direction": data.AdminServicesByDirection,
+		"directions":            directions,
 	}, w); err != nil {
 		logger.Printf("template execute error %s: %v", name, err)
 	}

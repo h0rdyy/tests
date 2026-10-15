@@ -4,4 +4,4 @@ __pycache__/
 venv/
 data/leads.json
 .env
-data/
+data/cybersec

@@ -21,13 +21,17 @@ func adminContentHandler(w http.ResponseWriter, r *http.Request, db *sql.DB, log
 		saveAdminService(w, r, db, id, logger)
 		return
 	}
+	if len(parts) == 2 && section == "services" && r.Method == http.MethodGet {
+		renderServicesList(w, db, logger)
+		return
+	}
 	if len(parts) < 3 {
 		http.NotFound(w, r)
 		return
 	}
 	if section == "staff" {
 		if r.Method == http.MethodGet {
-			renderStaffForm(w, db, id, logger)
+			renderStaffForm(w, r, db, id, logger)
 			return
 		}
 		if r.Method == http.MethodPost && len(parts) == 3 {
@@ -37,7 +41,7 @@ func adminContentHandler(w http.ResponseWriter, r *http.Request, db *sql.DB, log
 	}
 	if section == "services" {
 		if r.Method == http.MethodGet {
-			renderServiceForm(w, db, id, logger)
+			renderServiceForm(w, r, db, id, logger)
 			return
 		}
 		if r.Method == http.MethodPost && len(parts) == 3 {
@@ -49,12 +53,12 @@ func adminContentHandler(w http.ResponseWriter, r *http.Request, db *sql.DB, log
 }
 
 // renderStaffForm отображает форму сотрудника.
-func renderStaffForm(w http.ResponseWriter, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
+func renderStaffForm(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
 	data := PageData{}
 	if id != "" {
 		item, err := staffByID(db, id)
 		if err != nil {
-			http.NotFound(w, nil)
+			http.NotFound(w, r)
 			return
 		}
 		data.Staff = item
@@ -63,19 +67,34 @@ func renderStaffForm(w http.ResponseWriter, db *sql.DB, id string, logger interf
 }
 
 // renderServiceForm отображает форму услуги.
-func renderServiceForm(w http.ResponseWriter, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
+func renderServiceForm(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
 	data := PageData{Services: services}
-	data.AdminServices = []AdminService{}
+	all, err := listAllServices(db)
+	if err != nil {
+		logger.Printf("list services: %v", err)
+	}
+	data.AdminServices = all
 	data.AdminService = AdminService{Direction: directions[0]}
 	if id != "" {
 		item, err := serviceByID(db, id)
 		if err != nil {
-			http.NotFound(w, nil)
+			http.NotFound(w, r)
 			return
 		}
 		data.AdminService = item
 	}
 	renderNamedTemplate(w, "admin/service_form.html", data, logger)
+}
+
+// renderServicesList отображает список услуг админки.
+func renderServicesList(w http.ResponseWriter, db *sql.DB, logger interface{ Printf(string, ...interface{}) }) {
+	data := PageData{Services: services}
+	all, err := listAllServices(db)
+	if err != nil {
+		logger.Printf("list services: %v", err)
+	}
+	data.AdminServices = all
+	renderNamedTemplate(w, "admin/services_list.html", data, logger)
 }
 
 // saveStaff создаёт или обновляет сотрудника.
@@ -138,10 +157,10 @@ func expertsList(w http.ResponseWriter, db *sql.DB, logger interface{ Printf(str
 }
 
 // expertView отображает профиль опубликованного эксперта.
-func expertView(w http.ResponseWriter, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
+func expertView(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
 	item, err := staffByID(db, id)
 	if err != nil || item.Status != "published" {
-		http.NotFound(w, nil)
+		http.NotFound(w, r)
 		return
 	}
 	renderNamedTemplate(w, "experts/view.html", PageData{Staff: item}, logger)
