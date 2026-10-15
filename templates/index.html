@@ -113,6 +113,27 @@
           </a>
         </div>
         {% endfor %}
+        {% for dbs in db_services %}
+        <div
+          class="border-glow-card directions__cell"
+          data-colors="#a78bfa|#f472b6|#38bdf8"
+          data-card-bg="#0a0614"
+          data-glow-color="265 85 75"
+          data-border-radius="32"
+          data-glow-radius="36"
+          data-fill-opacity="0.45"
+        >
+          <span class="edge-light"></span>
+          <a class="border-glow-inner direction-card" href="/services/{{ dbs.ID }}">
+            <div class="direction-card__copy">
+              <span class="direction-card__label">{{ dbs.Title }}</span>
+              {% if dbs.Direction %}
+              <span class="direction-card__hint">{{ dbs.Direction }}</span>
+              {% endif %}
+            </div>
+          </a>
+        </div>
+        {% endfor %}
       </div>
 
       <div class="searchinform-block">

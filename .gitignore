@@ -1,7 +1,2 @@
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-data/leads.json
-.env
-data/cybersec
+data/app.db
+data/site.db

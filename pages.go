@@ -63,6 +63,7 @@ type PageData struct {
 	Staffs                   []Staff
 	AdminService             AdminService
 	AdminServices            []AdminService
+	DBServices               []AdminService
 }
 
 // publicPageData возвращает направления услуг и опубликованные услуги из БД.
@@ -70,6 +71,7 @@ func publicPageData(db *sql.DB) PageData {
 	return PageData{
 		Services:                 services,
 		AdminServicesByDirection: publishedServicesByDirection(db),
+		DBServices:               listPublishedServices(db),
 	}
 }
 
@@ -126,6 +128,12 @@ func pageHandler(db *sql.DB, logger *log.Logger) http.HandlerFunc {
 			renderAdminForm(w, logger)
 		case r.URL.Path == "/admin":
 			http.Redirect(w, r, "/admin/articles/new", http.StatusSeeOther)
+		case strings.HasPrefix(r.URL.Path, "/services/"):
+			if r.Method != http.MethodGet {
+				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			servicePage(w, r, db, logger)
 		case strings.HasPrefix(r.URL.Path, "/admin/staff") || strings.HasPrefix(r.URL.Path, "/admin/services"):
 			adminContentHandler(w, r, db, logger)
 		case r.URL.Path == "/experts":
@@ -192,7 +200,22 @@ func renderPublicPage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger
 	case r.URL.Path == "/articles/kibernsk":
 		name = "articles/kibernsk.html"
 	case strings.HasPrefix(r.URL.Path, "/services/"):
-		id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/services/"))
+		value := strings.TrimPrefix(r.URL.Path, "/services/")
+		if value == "" {
+			name, status = "404.html", http.StatusNotFound
+			break
+		}
+		item, dbErr := serviceByID(db, value)
+		if dbErr == nil {
+			if item.Status != "published" {
+				name, status = "404.html", http.StatusNotFound
+			} else {
+				name = "service-db.html"
+				data.AdminService = item
+			}
+			break
+		}
+		id, err := strconv.Atoi(value)
 		if err != nil || id < 1 || id > len(services) {
 			name, status = "404.html", http.StatusNotFound
 		} else {
@@ -401,9 +424,26 @@ func renderAdminForm(w http.ResponseWriter, logger *log.Logger) {
 	}
 }
 
-// servicePage находит услугу и отображает её существующий HTML-шаблон.
+// servicePage находит услугу в БД и отображает её динамический шаблон.
+// Для id 1-5, отсутствующих в БД, используется захардкоженная страница service.html.
 func servicePage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger *log.Logger) {
 	value := strings.TrimPrefix(r.URL.Path, "/services/")
+	if value == "" {
+		renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
+		return
+	}
+
+	if item, err := serviceByID(db, value); err == nil {
+		if item.Status != "published" {
+			renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
+			return
+		}
+		data := publicPageData(db)
+		data.AdminService = item
+		renderTemplate(w, "service-db.html", data, logger)
+		return
+	}
+
 	id, err := strconv.Atoi(value)
 	if err != nil || id < 1 || id > len(services) {
 		renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
@@ -433,6 +473,8 @@ func renderNamedTemplate(w http.ResponseWriter, name string, data PageData, logg
 	if err := tpl.ExecuteWriter(pongo2.Context{
 		"services":              data.Services,
 		"service":               data.Service,
+		"db_service":            data.AdminService,
+		"db_services":           data.DBServices,
 		"articles":              data.Articles,
 		"article":               data.Article,
 		"staff":                 data.Staff,
@@ -461,6 +503,8 @@ func renderTemplateStatus(w http.ResponseWriter, name string, data PageData, sta
 	if err := tpl.ExecuteWriter(pongo2.Context{
 		"services":              data.Services,
 		"service":               data.Service,
+		"db_service":            data.AdminService,
+		"db_services":           data.DBServices,
 		"articles":              data.Articles,
 		"article":               data.Article,
 		"staff":                 data.Staff,
