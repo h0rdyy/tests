@@ -22,7 +22,7 @@ func adminContentHandler(w http.ResponseWriter, r *http.Request, db *sql.DB, log
 		return
 	}
 	if len(parts) == 2 && section == "services" && r.Method == http.MethodGet {
-		renderServicesList(w, db, logger)
+		http.Redirect(w, r, "/admin/services/new", http.StatusSeeOther)
 		return
 	}
 	if len(parts) < 3 {
@@ -84,17 +84,6 @@ func renderServiceForm(w http.ResponseWriter, r *http.Request, db *sql.DB, id st
 		data.AdminService = item
 	}
 	renderNamedTemplate(w, "admin/service_form.html", data, logger)
-}
-
-// renderServicesList отображает список услуг админки.
-func renderServicesList(w http.ResponseWriter, db *sql.DB, logger interface{ Printf(string, ...interface{}) }) {
-	data := PageData{Services: services}
-	all, err := listAllServices(db)
-	if err != nil {
-		logger.Printf("list services: %v", err)
-	}
-	data.AdminServices = all
-	renderNamedTemplate(w, "admin/services_list.html", data, logger)
 }
 
 // saveStaff создаёт или обновляет сотрудника.

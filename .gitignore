@@ -1,5 +1,6 @@
-data/app.db
-data/site.db
+data/
+server.log
 
+# Go build artifacts
 /cybersec
 cybersec.exe
