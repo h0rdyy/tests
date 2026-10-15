@@ -16,16 +16,17 @@
 
     <div class="header__menu" id="header-menu">
       <nav class="nav" aria-label="Основное меню">
-        <a class="nav__link" href="{{ url_for('about') }}">О нас</a>
+        <a class="nav__link" href="/about">О нас</a>
         <div class="nav__item nav__item--dropdown">
           <span class="nav__link nav__dropdown-toggle" tabindex="0">Услуги</span>
           <ul class="nav__sub">
             {% for s in services %}
-            <li><a href="/services/{{ s.id }}">{{ s.title }}</a></li>
+            <li><a href="/services/{{ s.ID }}">{{ s.Title }}</a></li>
             {% endfor %}
           </ul>
         </div>
         <a class="nav__link" href="/expertise">Экспертиза</a>
+        <a class="nav__link" href="/experts">Команда</a>
       </nav>
       <button type="button" class="btn btn--primary" id="open-lead-modal" data-open-modal>Оставить заявку</button>
     </div>

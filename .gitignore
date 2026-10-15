@@ -2,9 +2,6 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
-data/
+data/leads.json
 .env
-logs/
-*.db
-*.exe
-*.local
+data/

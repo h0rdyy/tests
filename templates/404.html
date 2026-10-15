@@ -35,6 +35,7 @@
                 <nav class="footer-nav">
                     <a href="/about" class="footer-nav__link">О нас</a>
                     <a href="/expertise" class="footer-nav__link">Экспертиза</a>
+                    <a href="/experts" class="footer-nav__link">Команда</a>
                     <a href="/privacy" class="footer-nav__link">Политика ПДн</a>
                 </nav>
             </div>
@@ -43,7 +44,7 @@
                 <h4 class="footer-column__title">Услуги</h4>
                 <nav class="footer-nav">
                     {% for s in services %}
-                    <a href="/services/{{ s.id }}" class="footer-nav__link">{{ s.title }}</a>
+                    <a href="/services/{{ s.ID }}" class="footer-nav__link">{{ s.Title }}</a>
                     {% endfor %}
                 </nav>
             </div>

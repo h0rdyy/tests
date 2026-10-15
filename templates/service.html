@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ service.title }} — Центр компетенций по кибербезопасности</title>
+  <title>{{ service.Title }} — Центр компетенций по кибербезопасности</title>
   <link rel="stylesheet" href="/static/css/main.css" />
 </head>
 <body class="page--sub">
@@ -11,7 +11,7 @@
   {% include 'partials/modal.html' %}
 
   <main class="page" style="padding-top: 6rem; max-width: 1200px; margin: 0 auto; padding-left: clamp(1.5rem, 5vw, 2.7rem); padding-right: clamp(1.5rem, 5vw, 2.7rem); padding-bottom: 4rem;">    
-    <h1 style="font-size:clamp(1.5rem,3vw,2.5rem);margin-bottom:1rem;color:#fff;">{{ service.title }}</h1>
+    <h1 style="font-size:clamp(1.5rem,3vw,2.5rem);margin-bottom:1rem;color:#fff;">{{ service.Title }}</h1>
 
     {% if service.ID == 1 %}
       
@@ -744,7 +744,7 @@
 
     {% else %}
       <p style="line-height:1.7;opacity:0.9;margin-bottom:1rem">
-        Здесь будет подробное описание услуги «{{ service.title }}»...
+        Здесь будет подробное описание услуги «{{ service.Title }}»...
       </p>
     {% endif %}
   </main>
@@ -769,6 +769,7 @@
                 <nav class="footer-nav">
                     <a href="/about" class="footer-nav__link">О нас</a>
                     <a href="/expertise" class="footer-nav__link">Экспертиза</a>
+                    <a href="/experts" class="footer-nav__link">Команда</a>
                     <a href="/privacy" class="footer-nav__link">Политика ПДн</a>
                 </nav>
             </div>
@@ -777,7 +778,7 @@
                 <h4 class="footer-column__title">Услуги</h4>
                 <nav class="footer-nav">
                     {% for s in services %}
-                    <a href="/services/{{ s.id }}" class="footer-nav__link">{{ s.title }}</a>
+                    <a href="/services/{{ s.ID }}" class="footer-nav__link">{{ s.Title }}</a>
                     {% endfor %}
                 </nav>
             </div>

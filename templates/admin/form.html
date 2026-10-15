@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Редактирование статьи — Центр компетенций по кибербезопасности</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/theme/toastui-editor-dark.min.css">
+        <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+            <a href="/" class="brand" aria-label="Центр компетенций по кибербезопасности">
+                <img class="brand-logo" src="/static/img/ckkd.png" alt="Логотип ЦККБ"><span class="brand-title">Центр компетенций<br>по кибербезопасности</span>
+            </a>
+
+            <div class="nav-section-title">УПРАВЛЕНИЕ САЙТОМ</div>
+            <ul class="nav-list">
+                <li><a href="/admin/articles/new" class="nav-item active"><span class="nav-item-left"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Статьи</span></span><span class="nav-badge">24</span></a></li>
+                                <li><a href="/admin/staff/new" class="nav-item"><span class="nav-item-left"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Сотрудники</span></span><span class="nav-badge">12</span></a></li>
+                                <li><a href="/admin/services/new" class="nav-item"><span class="nav-item-left"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>Услуги</span></span><span class="nav-badge">18</span></a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="user-avatar">КУ</div>
+            <div>
+                <div class="user-name">Канье Уэст</div>
+                <div class="user-role">Администратор</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-wrapper">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="burger-btn" onclick="toggleSidebar()">☰</button>
+                <div class="breadcrumbs">
+                    <span>Управление сайтом</span><span>›</span><span class="current">Статьи</span>
+                </div>
+            </div>
+            <a href="/" class="external-link">Открыть сайт ↗</a>
+        </header>
+
+        <main class="content-area">
+            <a href="#" class="back-link">← Все статьи</a>
+
+            <div class="page-header">
+                <h1 class="page-title">Редактирование статьи</h1>
+                <div class="status-pill"><span class="status-dot"></span><span id="status-text">Черновик</span></div>
+            </div>
+            <p class="page-subtitle">Подготовьте материал, добавьте теги и укажите автора перед публикацией.</p>
+
+            <section class="editor-card">
+                <h2 class="card-section-title">Содержание статьи</h2>
+
+                <div class="form-group">
+                    <label class="form-label">Название статьи *</label>
+                    <div class="title-hero-box" id="hero-box">
+                        <div class="title-hero-actions">
+                            <button type="button" class="btn-ghost-sm" onclick="document.getElementById('cover-upload').click()">
+                                ✎ Добавить обложку для заголовка
+                            </button>
+                            <input type="file" id="cover-upload" accept="image/*" style="display:none" onchange="setCoverImage(event)">
+
+                            <div class="tags-row" id="tags-container">
+                                <button type="button" class="btn-ghost-sm" onclick="addTag()">+ Добавить тег</button>
+                            </div>
+                        </div>
+                        <input type="text" id="article-title" class="title-input" value="КАК ЗАЩИТИТЬ БИЗНЕС: СДЕЛКИ С ПОДРЯДЧИКАМИ">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Дата публикации/проведения мероприятия *</label>
+                    <input type="text" id="article-date" class="input-box" value="12 октября 2026 года">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Автор статьи *</label>
+                    <input type="text" id="article-author" class="input-box" value="Никита Раскольников">
+                    <input type="text" id="article-author-role" class="input-box italic-sub" value="Эксперт ЦККБ">
+                </div>
+
+
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Текст статьи *</label>
+                    <div class="rich-editor-wrapper">
+                        <div id="toast-editor"></div>
+                        <textarea id="article-body" name="body" hidden></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="bottom-actions-bar">
+                <div class="save-timestamp" id="save-time">Последнее сохранение в 14:32</div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline">Отмена</button>
+                    <button type="button" class="btn btn-outline" onclick="submitArticle('draft')">Сохранить черновик</button>
+                    <button type="button" class="btn btn-primary" onclick="submitArticle('published')">Опубликовать</button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <div class="md-modal-backdrop" id="md-modal">
+        <div class="md-modal">
+            <h3 style="font-size: 15px;">Собранный Markdown + JSON</h3>
+            <pre id="md-output"></pre>
+            <button class="btn btn-primary" style="width:100%" onclick="document.getElementById('md-modal').style.display='none'">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
+        function addTag() {
+            const t = prompt('Тег:'); if (!t) return;
+            const s = document.createElement('span'); s.className = 'tag-chip'; s.dataset.tag = t;
+            s.innerHTML = `${t} <button onclick="this.parentElement.remove()">×</button>`;
+            document.getElementById('tags-container').prepend(s);
+        }
+        function setCoverImage(e) {
+            const f = e.target.files[0]; if (!f) return;
+            document.getElementById('hero-box').style.backgroundImage = `linear-gradient(rgba(19,15,29,0.7), rgba(19,15,29,0.9)), url('${URL.createObjectURL(f)}')`;
+        }
+        const editor = new toastui.Editor({
+            el: document.getElementById('toast-editor'),
+            height: '500px',
+            theme: 'dark',
+            initialEditType: 'wysiwyg',
+            previewStyle: 'tab',
+            hideModeSwitch: true,
+            initialValue: '# Начните писать статью\n\nТекст статьи...',
+            toolbarItems: [
+                ['heading', 'bold', 'italic', 'strike'],
+                ['hr', 'quote'],
+                ['ul', 'ol', 'task'],
+                ['table', 'link', 'image'],
+                ['code', 'codeblock']
+            ],
+            hooks: {
+                addImageBlobHook: async (blob, callback) => {
+                    const form = new FormData();
+                    form.append('file', blob, blob.name || 'image');
+                    try {
+                        const response = await fetch('/admin/upload', { method: 'POST', body: form });
+                        if (!response.ok) throw new Error('Не удалось загрузить изображение');
+                        const data = await response.json();
+                        callback(data.url, blob.name || 'Изображение');
+                    } catch (error) {
+                        document.getElementById('md-output').textContent = error.message;
+                        document.getElementById('md-modal').style.display = 'flex';
+                    }
+                }
+            }
+        });
+
+
+        function submitArticle(status) {
+            const markdown = editor.getMarkdown();
+            document.getElementById('article-body').value = markdown;
+            const payload = {
+                title: document.getElementById('article-title').value,
+                date: document.getElementById('article-date').value,
+                author: document.getElementById('article-author').value,
+                tags: '',
+                status: status,
+                content_md: markdown
+            };
+            const form = new FormData();
+            Object.entries(payload).forEach(([key, value]) => form.append(key, value));
+            const cover = document.getElementById('cover-upload').files[0];
+            if (cover) form.append('cover', cover);
+            fetch('/admin/articles/new/save', { method: 'POST', body: form })
+                .then(response => {
+                    if (!response.ok) throw new Error('Не удалось сохранить статью');
+                    document.getElementById('md-output').textContent = status === 'published' ? 'Статья опубликована на сайте.' : 'Черновик сохранён.';
+                    document.getElementById('md-modal').style.display = 'flex';
+                    setTimeout(() => { window.location.href = '/expertise'; }, 1200);
+                })
+                .catch(error => {
+                    document.getElementById('md-output').textContent = error.message;
+                    document.getElementById('md-modal').style.display = 'flex';
+                });
+        }
+    </script>
+</body>
+</html>
