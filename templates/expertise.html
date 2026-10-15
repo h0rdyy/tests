@@ -16,18 +16,6 @@
         <h1 style="font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 700; color: #fff; margin-bottom: 3rem; text-align: center; letter-spacing: -0.02em;">Экспертиза</h1>
 
         <div class="expertise-grid">
-            {% for article in articles %}
-            <a href="/articles/{{ article.Slug }}" class="expertise-card">
-                <div class="expertise-card__image-wrapper" style="position: relative;">
-                    {% for tag in article.Tags %}<span class="expertise-card__badge">{{ tag }}</span>{% endfor %}
-                    {% if article.CoverURL %}<img src="{{ article.CoverURL }}" alt="{{ article.Title }}" class="expertise-card__image">{% else %}<img src="/static/img/article1.jpg" alt="{{ article.Title }}" class="expertise-card__image">{% endif %}
-                </div>
-                <div class="expertise-card__footer">
-                    <h3 class="expertise-card__title">{{ article.Title }}</h3>
-                    <span class="expertise-card__arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
-                </div>
-            </a>
-            {% endfor %}
             
             <!-- Блок 1 -->
             <a href="/articles/kibernsk" class="expertise-card">
@@ -156,7 +144,6 @@
                     <nav class="footer-nav">
                         <a href="/about" class="footer-nav__link">О нас</a>
                         <a href="/expertise" class="footer-nav__link">Экспертиза</a>
-                    <a href="/experts" class="footer-nav__link">Команда</a>
                         <a href="/privacy" class="footer-nav__link">Политика ПДн</a>
                     </nav>
                 </div>
@@ -165,7 +152,7 @@
                     <h4 class="footer-column__title">Услуги</h4>
                     <nav class="footer-nav">
                         {% for s in services %}
-                        <a href="/services/{{ s.ID }}" class="footer-nav__link">{{ s.Title }}</a>
+                        <a href="/services/{{ s.id }}" class="footer-nav__link">{{ s.title }}</a>
                         {% endfor %}
                     </nav>
                 </div>

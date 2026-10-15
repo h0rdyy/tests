@@ -2,7 +2,7 @@ import { mountDarkVeil } from "./darkveil.js";
 import { initBorderGlowCards } from "./border-glow.js";
 import { initScrollHeader, initLeadModal, initLeadForms } from "./site-common.js";
 import { initCasesCarousel } from "./cases-carousel.js";
-
+import { mountAboutAscii } from "./ascii-about.js";
 
 const canvas = document.getElementById("darkveil-canvas");
 if (canvas) {
@@ -13,6 +13,16 @@ if (canvas) {
   });
 }
 
+const aboutAsciiCanvas = document.getElementById("about-ascii");
+if (aboutAsciiCanvas) {
+  const aboutLogo = document.querySelector(".about__image img, .text-page__image img");
+  // на странице «О нас» логотип крупный и перекрывает «призрак» —
+  // рисуем глифы крупнее и по центру, чтобы они выходили за края картинки
+  const ghostOpts = aboutAsciiCanvas.closest(".text-page__image")
+    ? { ghostScale: 1.18, ghostX: 0.5 }
+    : {};
+  mountAboutAscii(aboutAsciiCanvas, { logoSrc: aboutLogo ? aboutLogo.src : undefined, ...ghostOpts });
+}
 
 initScrollHeader(document.getElementById("site-header"));
 initLeadModal();

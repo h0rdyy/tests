@@ -1031,6 +1031,8 @@ img[src*="study"] {
 }
 
 .about__container {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 40px;
@@ -1056,18 +1058,44 @@ img[src*="study"] {
 }
 
 .about__text {
+  position: relative;
+  z-index: 1;
   flex: 1;
   font-size: 25px;
 }
 
+/* Живой ASCII/CRT-фон с логотипом (см. static/js/ascii-about.js) */
+.about-ascii {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.9;
+  -webkit-mask-image: radial-gradient(115% 115% at 70% 50%, #000 35%, transparent 75%);
+  mask-image: radial-gradient(115% 115% at 70% 50%, #000 35%, transparent 75%);
+}
+
+@media (max-width: 768px) {
+  .about-ascii {
+    opacity: 0.6;
+    -webkit-mask-image: radial-gradient(130% 130% at 50% 55%, #000 30%, transparent 78%);
+    mask-image: radial-gradient(130% 130% at 50% 55%, #000 30%, transparent 78%);
+  }
+}
+
 .about__image {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   justify-content: center;
   filter: drop-shadow(0 0 10px rgba(94, 62, 252, 0.8));
-  
+
   /* Чтобы картинка не сжималась меньше 280-300px на мобильных */
-  min-width: 200px; 
+  min-width: 200px;
 }
 
 .about__image img {
@@ -1326,30 +1354,6 @@ img[src*="study"] {
   padding-right: 0.2em;
 }
 
-/* Markdown article content */
-.article-body__markdown {
-  color: #e8e6f2;
-  font-size: 1.05rem;
-  line-height: 1.8;
-}
-.article-body__markdown > * { margin-top: 0; margin-bottom: 1.15rem; }
-.article-body__markdown h1,
-.article-body__markdown h2,
-.article-body__markdown h3,
-.article-body__markdown h4 { color: #fff; line-height: 1.25; margin-top: 2rem; margin-bottom: .8rem; }
-.article-body__markdown h1 { font-size: clamp(1.8rem, 4vw, 2.7rem); }
-.article-body__markdown h2 { font-size: clamp(1.45rem, 3vw, 2rem); }
-.article-body__markdown h3 { font-size: 1.3rem; }
-.article-body__markdown ul,
-.article-body__markdown ol { padding-left: 1.6rem; margin-bottom: 1.25rem; }
-.article-body__markdown li { margin-bottom: .45rem; }
-.article-body__markdown em { font-style: italic; }
-.article-body__markdown strong { font-weight: 700; color: #fff; }
-.article-body__markdown u { text-decoration: underline; text-decoration-color: #a78bfa; text-underline-offset: 3px; }
-.article-body__markdown img { display: block; max-width: 100%; height: auto; margin: 1.5rem auto .5rem; border-radius: 12px; }
-.article-body__markdown blockquote { margin: 1.25rem 0; padding: .75rem 1rem; border-left: 3px solid #8b5cf6; color: #cfc7df; background: rgba(139, 92, 246, .08); }
-.article-body__markdown code { padding: .1rem .35rem; border-radius: 4px; background: rgba(255,255,255,.08); }
-
 /* Контейнер поверх фона */
 .clients-content {
   position: relative;
@@ -1476,10 +1480,25 @@ img[src*="study"] {
 
 /* Оформление картинки */
 .text-page__image img {
+  position: relative;
+  z-index: 1;
   max-width: 100%;
   height: auto;
   border-radius: 20px;
   filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.4));
+}
+
+/* ASCII-фон вокруг логотипа на странице «О нас» */
+.text-page__image {
+  position: relative;
+  min-width: 260px;
+}
+
+.text-page__image .about-ascii {
+  border-radius: 20px;
+  opacity: 0.95;
+  -webkit-mask-image: radial-gradient(120% 120% at 50% 50%, #000 55%, transparent 95%);
+  mask-image: radial-gradient(120% 120% at 50% 50%, #000 55%, transparent 95%);
 }
 
 /* --- Десктопная версия (от 900px и выше) --- */
@@ -2524,15 +2543,3 @@ body, html {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-
-.experts-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
-.expert-card { background:rgba(8,6,18,.55); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:18px; }
-.expert-card img { width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:14px; margin-bottom:14px; }
-.expert-card a { color:#fff; text-decoration:none; }
-.expert-card h2 { margin:.4rem 0; }
-.expert-card p { color:#a0a0b0; line-height:1.5; }
-.expert-profile { display:grid; grid-template-columns: minmax(220px, .8fr) 1.2fr; gap:40px; margin-top:30px; }
-.expert-profile img { width:100%; border-radius:20px; }
-.expert-profile h2 { color:#a78bfa; }
-.expert-profile h3 { color:#fff; margin-top:28px; }
-@media(max-width:800px){.experts-grid{grid-template-columns:1fr}.expert-profile{grid-template-columns:1fr}}

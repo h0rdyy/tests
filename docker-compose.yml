@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file: .env
+    environment:
+      DB_PATH: /app/data/cybersec.db
+      LOG_PATH: /app/logs/app.log
+    volumes:
+      - cybersec-data:/app/data
+      - cybersec-logs:/app/logs
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "/app/cybersec"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+volumes:
+  cybersec-data:
+  cybersec-logs:

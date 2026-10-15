@@ -34,6 +34,7 @@
     <section class="section about">
       <div class="about__container">
 
+        <canvas id="about-ascii" class="about-ascii" aria-hidden="true"></canvas>
 
         <div class="about__text">
           <h2 class="section__title1">О нас</h2>
@@ -89,7 +90,7 @@
       <div class="directions__grid">
         {% for s in services %}
         <div
-          class="border-glow-card directions__cell directions__cell--{{ s.Cell }}"
+          class="border-glow-card directions__cell directions__cell--{{ s.cell }}"
           data-colors="#a78bfa|#f472b6|#38bdf8"
           data-card-bg="#0a0614"
           data-glow-color="265 85 75"
@@ -98,37 +99,16 @@
           data-fill-opacity="0.45"
         >
           <span class="edge-light"></span>
-          <a class="border-glow-inner direction-card" href="/services/{{ s.ID }}">
+          <a class="border-glow-inner direction-card" href="/services/{{ s.id }}">
             <img
             class="direction-card__thumb" 
-            src="/static/img/{{ s.Thumb }}"
+            src="/static/img/{{ s.thumb }}" 
             alt=""
             />
             <div class="direction-card__copy">
-              <span class="direction-card__label">{{ s.Title }}</span>
-              {% if s.Hint %}
-              <span class="direction-card__hint">{{ s.Hint }}</span>
-              {% endif %}
-            </div>
-          </a>
-        </div>
-        {% endfor %}
-        {% for dbs in db_services %}
-        <div
-          class="border-glow-card directions__cell"
-          data-colors="#a78bfa|#f472b6|#38bdf8"
-          data-card-bg="#0a0614"
-          data-glow-color="265 85 75"
-          data-border-radius="32"
-          data-glow-radius="36"
-          data-fill-opacity="0.45"
-        >
-          <span class="edge-light"></span>
-          <a class="border-glow-inner direction-card" href="/services/{{ dbs.ID }}">
-            <div class="direction-card__copy">
-              <span class="direction-card__label">{{ dbs.Title }}</span>
-              {% if dbs.Direction %}
-              <span class="direction-card__hint">{{ dbs.Direction }}</span>
+              <span class="direction-card__label">{{ s.title }}</span>
+              {% if s.hint %}
+              <span class="direction-card__hint">{{ s.hint }}</span>
               {% endif %}
             </div>
           </a>
@@ -312,7 +292,6 @@
                 <nav class="footer-nav">
                     <a href="/about" class="footer-nav__link">О нас</a>
                     <a href="/expertise" class="footer-nav__link">Экспертиза</a>
-        <a href="/experts" class="footer-nav__link">Команда</a>
                     <a href="/privacy" class="footer-nav__link">Политика ПДн</a>
                 </nav>
             </div>
@@ -321,7 +300,7 @@
                 <h4 class="footer-column__title">Услуги</h4>
                 <nav class="footer-nav">
                     {% for s in services %}
-                    <a href="/services/{{ s.ID }}" class="footer-nav__link">{{ s.Title }}</a>
+                    <a href="/services/{{ s.id }}" class="footer-nav__link">{{ s.title }}</a>
                     {% endfor %}
                 </nav>
             </div>
