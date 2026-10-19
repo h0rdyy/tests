@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"strconv"
 	"strings"
 )
 
@@ -18,13 +19,23 @@ type Staff struct {
 
 // AdminService хранит редактируемую услугу админки.
 // Slug задаёт адрес страницы вида /services/<slug>; пустой — адрес по id.
+// ParentID привязывает подуслугу к разделу-услуге (аккордеон на странице раздела).
 type AdminService struct {
 	ID          int
 	Direction   string
 	Title       string
 	Description string
 	Slug        string
+	ParentID    int
 	Status      string
+}
+
+// URL возвращает адрес публичной страницы услуги: slug, иначе id.
+func (s AdminService) URL() string {
+	if s.Slug != "" {
+		return "/services/" + s.Slug
+	}
+	return "/services/" + strconv.Itoa(s.ID)
 }
 
 var directions = []string{
@@ -55,6 +66,7 @@ func initContentTables(db *sql.DB) error {
 			title TEXT NOT NULL,
 			description TEXT,
 			slug TEXT NOT NULL DEFAULT '',
+			parent_id INTEGER NOT NULL DEFAULT 0,
 			status TEXT NOT NULL DEFAULT 'draft',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -65,6 +77,7 @@ func initContentTables(db *sql.DB) error {
 	// Миграции для таблиц, созданных в старых версиях схемы.
 	for _, column := range []struct{ table, name, typ string }{
 		{"services", "slug", "TEXT NOT NULL DEFAULT ''"},
+		{"services", "parent_id", "INTEGER NOT NULL DEFAULT 0"},
 	} {
 		if !hasColumn(db, column.table, column.name) {
 			if _, err := db.Exec(`ALTER TABLE ` + column.table + ` ADD COLUMN ` + column.name + ` ` + column.typ); err != nil {
@@ -92,7 +105,7 @@ func hasColumn(db *sql.DB, table, column string) bool {
 }
 
 const staffColumns = `id,full_name,position,short_info,practice,photo_url,status`
-const serviceColumns = `id,direction,title,description,slug,status`
+const serviceColumns = `id,direction,title,description,slug,parent_id,status`
 
 // listPublishedStaff возвращает опубликованных сотрудников.
 func listPublishedStaff(db *sql.DB) []Staff {
@@ -129,7 +142,7 @@ func listPublishedServices(db *sql.DB) []AdminService {
 	var result []AdminService
 	for rows.Next() {
 		var item AdminService
-		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.Status) == nil {
+		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status) == nil {
 			result = append(result, item)
 		}
 	}
@@ -145,6 +158,23 @@ func publishedServicesByDirection(db *sql.DB) map[string][]AdminService {
 	return grouped
 }
 
+// publishedChildServices возвращает опубликованные подуслуги раздела-услуги parentID.
+func publishedChildServices(db *sql.DB, parentID int) []AdminService {
+	rows, err := db.Query(`SELECT `+serviceColumns+` FROM services WHERE status='published' AND parent_id=? ORDER BY id`, parentID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var result []AdminService
+	for rows.Next() {
+		var item AdminService
+		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status) == nil {
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
 // listAllServices возвращает все услуги админки (черновики и опубликованные).
 func listAllServices(db *sql.DB) ([]AdminService, error) {
 	rows, err := db.Query(`SELECT ` + serviceColumns + ` FROM services ORDER BY direction,id`)
@@ -155,7 +185,7 @@ func listAllServices(db *sql.DB) ([]AdminService, error) {
 	var result []AdminService
 	for rows.Next() {
 		var item AdminService
-		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.Status) == nil {
+		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status) == nil {
 			result = append(result, item)
 		}
 	}
@@ -166,13 +196,13 @@ func listAllServices(db *sql.DB) ([]AdminService, error) {
 func serviceByID(db *sql.DB, key string) (AdminService, error) {
 	var item AdminService
 	err := db.QueryRow(`SELECT `+serviceColumns+` FROM services WHERE id=?`, key).
-		Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.Status)
+		Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status)
 	if err == nil {
 		return item, nil
 	}
 	if !isNumeric(key) {
 		err = db.QueryRow(`SELECT `+serviceColumns+` FROM services WHERE slug<>'' AND slug=?`, key).
-			Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.Status)
+			Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status)
 	}
 	return item, err
 }

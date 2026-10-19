@@ -64,6 +64,24 @@ type PageData struct {
 	AdminService             AdminService
 	AdminServices            []AdminService
 	DBServices               []AdminService
+	ServiceNav               []AdminService
+	ServiceChildren          []AdminService
+}
+
+// serviceNav returns dropdown entries: legacy directions first, then DB services without a parent.
+func serviceNav(db *sql.DB) []AdminService {
+	nav := make([]AdminService, 0, len(services))
+	for _, s := range services {
+		nav = append(nav, AdminService{ID: s.ID, Title: s.Title})
+	}
+	seen := map[int]bool{}
+	for _, s := range listPublishedServices(db) {
+		if s.ParentID == 0 && !seen[s.ID] {
+			seen[s.ID] = true
+			nav = append(nav, s)
+		}
+	}
+	return nav
 }
 
 // publicPageData возвращает направления услуг и опубликованные услуги из БД.
@@ -72,6 +90,7 @@ func publicPageData(db *sql.DB) PageData {
 		Services:                 services,
 		AdminServicesByDirection: publishedServicesByDirection(db),
 		DBServices:               listPublishedServices(db),
+		ServiceNav:               serviceNav(db),
 	}
 }
 
@@ -212,6 +231,7 @@ func renderPublicPage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger
 			} else {
 				name = "service-db.html"
 				data.AdminService = item
+				data.ServiceChildren = publishedChildServices(db, item.ID)
 				data.Article.ContentHTML = markdownHTML(item.Description)
 			}
 			break
