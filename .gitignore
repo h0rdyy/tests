@@ -1,10 +1,5 @@
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-data/
+*.log
 .env
-logs/
-*.db
-*.exe
-*.local
+cybersec
+cybersec.exe
+data/
