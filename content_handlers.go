@@ -2,13 +2,15 @@ package main
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"unicode"
 )
 
 // adminContentHandler обслуживает формы сотрудников и услуг.
-func adminContentHandler(w http.ResponseWriter, r *http.Request, db *sql.DB, logger interface{ Printf(string, ...interface{}) }) {
+func adminContentHandler(w http.ResponseWriter, r *http.Request, db *sql.DB, logger *log.Logger) {
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	section, id := parts[1], ""
 	if len(parts) > 2 && parts[2] != "new" {
@@ -54,7 +56,7 @@ func adminContentHandler(w http.ResponseWriter, r *http.Request, db *sql.DB, log
 }
 
 // renderStaffForm отображает форму сотрудника.
-func renderStaffForm(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
+func renderStaffForm(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger *log.Logger) {
 	data := PageData{}
 	if id != "" {
 		item, err := staffByID(db, id)
@@ -68,13 +70,19 @@ func renderStaffForm(w http.ResponseWriter, r *http.Request, db *sql.DB, id stri
 }
 
 // renderServiceForm отображает форму услуги со списком существующих услуг.
-func renderServiceForm(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
-	data := PageData{Services: services}
+func renderServiceForm(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger *log.Logger) {
+	data := PageData{}
 	all, err := listAllServices(db)
 	if err != nil {
 		logger.Printf("list services: %v", err)
 	}
-	data.AdminServices = all
+	var roots []AdminService
+	for _, s := range all {
+		if s.ParentID == 0 {
+			roots = append(roots, s)
+		}
+	}
+	data.AdminServices = roots
 	data.AdminService = AdminService{Direction: directions[0]}
 	if id != "" {
 		item, err := serviceByID(db, id)
@@ -83,19 +91,26 @@ func renderServiceForm(w http.ResponseWriter, r *http.Request, db *sql.DB, id st
 			return
 		}
 		data.AdminService = item
+		data.ServiceChildren = childServicesHTML(db, item.ID, false)
 	}
 	renderNamedTemplate(w, "admin/service_form.html", data, logger)
 }
 
 // adminServicesList показывает все услуги, сгруппированные по направлениям.
-func adminServicesList(w http.ResponseWriter, db *sql.DB, logger interface{ Printf(string, ...interface{}) }) {
+func adminServicesList(w http.ResponseWriter, db *sql.DB, logger *log.Logger) {
 	all, err := listAllServices(db)
 	if err != nil {
 		logger.Printf("list services: %v", err)
 	}
-	data := PageData{AdminServices: all}
-	grouped := make(map[string][]AdminService)
+	var roots []AdminService
 	for _, s := range all {
+		if s.ParentID == 0 {
+			roots = append(roots, s)
+		}
+	}
+	data := PageData{AdminServices: roots}
+	grouped := make(map[string][]AdminService)
+	for _, s := range roots {
 		grouped[s.Direction] = append(grouped[s.Direction], s)
 	}
 	data.AdminServicesByDirection = grouped
@@ -103,7 +118,7 @@ func adminServicesList(w http.ResponseWriter, db *sql.DB, logger interface{ Prin
 }
 
 // saveStaff создаёт или обновляет сотрудника; practice хранит резюме в Markdown.
-func saveStaff(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
+func saveStaff(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger *log.Logger) {
 	_ = r.ParseMultipartForm(8 << 20)
 	name := strings.TrimSpace(r.FormValue("full_name"))
 	if name == "" {
@@ -130,8 +145,8 @@ func saveStaff(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, lo
 	http.Redirect(w, r, redirectTo, http.StatusSeeOther)
 }
 
-// saveAdminService создаёт или обновляет услугу со страницей по slug.
-func saveAdminService(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
+// saveAdminService создаёт или обновляет услугу; parent_id формирует аккордеоны подуслуг.
+func saveAdminService(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger *log.Logger) {
 	direction, title := strings.TrimSpace(r.FormValue("direction")), strings.TrimSpace(r.FormValue("title"))
 	if direction == "" || title == "" {
 		http.Error(w, "direction and title are required", 400)
@@ -146,11 +161,26 @@ func saveAdminService(w http.ResponseWriter, r *http.Request, db *sql.DB, id str
 		return
 	}
 	status := normalizeStatus(r.FormValue("status"))
+	parentID := parseFormInt(r.FormValue("parent_id"))
+	if id != "" {
+		if selfID := parseFormInt(id); parentID == selfID {
+			http.Error(w, "услуга не может быть сама себе разделом", 400)
+			return
+		}
+	}
+	// Числовые slug-и зарезервированы: /services/1..5 должны всегда вести
+	// на страницы легаси-услуг, иначе новая услуга «перехватит» чужой адрес.
+	if isNumeric(slug) {
+		slug = slug + "-" + slugify(title)
+		if len(slug) > 96 {
+			slug = slug[:96]
+		}
+	}
 	var err error
 	if id == "" {
-		_, err = db.Exec(`INSERT INTO services(direction,title,description,slug,status,created_at,updated_at) VALUES(?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, direction, title, r.FormValue("description"), slug, status)
+		_, err = db.Exec(`INSERT INTO services(direction,title,description,slug,parent_id,status,created_at,updated_at) VALUES(?,?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, direction, title, r.FormValue("description"), slug, parentID, status)
 	} else {
-		_, err = db.Exec(`UPDATE services SET direction=?,title=?,description=?,slug=?,status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`, direction, title, r.FormValue("description"), slug, status, id)
+		_, err = db.Exec(`UPDATE services SET direction=?,title=?,description=?,slug=?,parent_id=?,status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`, direction, title, r.FormValue("description"), slug, parentID, status, id)
 	}
 	if err != nil {
 		logger.Printf("save service: %v", err)
@@ -162,6 +192,15 @@ func saveAdminService(w http.ResponseWriter, r *http.Request, db *sql.DB, id str
 		redirectTo = "/admin/services/" + id
 	}
 	http.Redirect(w, r, redirectTo, http.StatusSeeOther)
+}
+
+// parseFormInt безопасно читает целое число из формы (пусто или ошибка — 0).
+func parseFormInt(value string) int {
+	n, _ := strconv.Atoi(strings.TrimSpace(value))
+	if n < 0 {
+		return 0
+	}
+	return n
 }
 
 // validSlug принимает только адреса из букв, цифр и дефисов.
@@ -181,12 +220,12 @@ func validSlug(slug string) bool {
 }
 
 // expertsList отображает опубликованных экспертов.
-func expertsList(w http.ResponseWriter, db *sql.DB, logger interface{ Printf(string, ...interface{}) }) {
+func expertsList(w http.ResponseWriter, db *sql.DB, logger *log.Logger) {
 	renderNamedTemplate(w, "experts/list.html", PageData{Staffs: listPublishedStaff(db)}, logger)
 }
 
 // expertView отображает профиль опубликованного эксперта с резюме в Markdown.
-func expertView(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger interface{ Printf(string, ...interface{}) }) {
+func expertView(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger *log.Logger) {
 	item, err := staffByID(db, id)
 	if err != nil || item.Status != "published" {
 		http.NotFound(w, r)

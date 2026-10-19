@@ -4,3 +4,6 @@ server.log
 # Go build artifacts
 /cybersec
 cybersec.exe
+
+# smoke test logs
+smoke.log

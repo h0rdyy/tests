@@ -25,11 +25,23 @@ import (
 
 // Service содержит данные услуги, доступные HTML-шаблонам.
 type Service struct {
-	ID    int
-	Title string
-	Hint  string
-	Cell  string
-	Thumb string
+	ID        int
+	Title     string
+	Hint      string
+	Cell      string
+	Thumb     string
+	Direction string
+	Slug      string
+	ParentID  int
+	Status    string
+}
+
+// URL возвращает адрес публичной страницы легаси-услуги: id или slug.
+func (s Service) URL() string {
+	if s.Slug != "" {
+		return "/services/" + s.Slug
+	}
+	return "/services/" + strconv.Itoa(s.ID)
 }
 
 var services = []Service{
@@ -68,30 +80,114 @@ type PageData struct {
 	ServiceChildren          []AdminService
 }
 
-// serviceNav returns dropdown entries: legacy directions first, then DB services without a parent.
-func serviceNav(db *sql.DB) []AdminService {
-	nav := make([]AdminService, 0, len(services))
-	for _, s := range services {
-		nav = append(nav, AdminService{ID: s.ID, Title: s.Title})
-	}
-	seen := map[int]bool{}
+// serviceNav возвращает пункты выпадающего меню «Услуги»:
+// опубликованные корневые услуги из БД, затем легаси-разделы, отсутствующие в БД.
+func serviceNav(db *sql.DB) []Service {
+	nav := make([]Service, 0, len(services))
+	titles := map[string]bool{}
 	for _, s := range listPublishedServices(db) {
-		if s.ParentID == 0 && !seen[s.ID] {
-			seen[s.ID] = true
+		if s.ParentID == 0 && !titles[s.Title] {
+			titles[s.Title] = true
+			nav = append(nav, Service{ID: s.ID, Title: s.Title, Slug: s.Slug})
+		}
+	}
+	for _, s := range services {
+		if !titles[s.Title] {
 			nav = append(nav, s)
 		}
 	}
 	return nav
 }
 
+// reserveNumericSlugs приводит числовые slug-и записей БД к зарезервированным
+// id легаси-услуг (1..5). Такие адреса всегда открывают страницу легаси-услуги,
+// поэтому у записи из БД не может быть «чисто цифрового» адреса.
+// Функция идемпотентна и безопасна для повторных запусков.
+func reserveNumericSlugs(db *sql.DB, logger *log.Logger) {
+	legacyIDs := map[int]bool{}
+	for _, s := range services {
+		legacyIDs[s.ID] = true
+	}
+	rows, err := db.Query(`SELECT id,title,slug FROM services`)
+	if err != nil {
+		logger.Printf("reserve slugs query: %v", err)
+		return
+	}
+	type fix struct {
+		id   int
+		slug string
+	}
+	var fixes []fix
+	for rows.Next() {
+		var id int
+		var title, slug string
+		if err := rows.Scan(&id, &title, &slug); err != nil {
+			logger.Printf("reserve slugs scan: %v", err)
+			continue
+		}
+		if !isNumeric(slug) || !legacyIDs[id] {
+			continue
+		}
+		n, _ := strconv.Atoi(slug)
+		if legacyIDs[n] {
+			continue // адрес ведёт на легаси-услугу с таким id — это нормально
+		}
+		newSlug := slug + "-" + slugify(title)
+		if newSlug == slug {
+			newSlug = slug + "-service"
+		}
+		if len(newSlug) > 96 {
+			newSlug = strings.TrimRight(newSlug[:96], "-")
+		}
+		fixes = append(fixes, fix{id, newSlug})
+	}
+	rows.Close()
+	for _, f := range fixes {
+		if _, err := db.Exec(`UPDATE services SET slug=? WHERE id=?`, f.slug, f.id); err != nil {
+			logger.Printf("reserve slug %d: %v", f.id, err)
+		} else {
+			logger.Printf("reserve slug: id=%d -> %s", f.id, f.slug)
+		}
+	}
+}
+
 // publicPageData возвращает направления услуг и опубликованные услуги из БД.
 func publicPageData(db *sql.DB) PageData {
 	return PageData{
-		Services:                 services,
+		Services:                 serviceNav(db),
 		AdminServicesByDirection: publishedServicesByDirection(db),
 		DBServices:               listPublishedServices(db),
-		ServiceNav:               serviceNav(db),
 	}
+}
+
+// renderServicePage отображает страницу услуги из БД: описание + аккордеоны подуслуг.
+// onlyPublished — публичный режим (только опубликованные); в админке видны и черновики.
+func renderServicePage(w http.ResponseWriter, r *http.Request, db *sql.DB, item AdminService, status int, onlyPublished bool, logger *log.Logger) {
+	data := publicPageData(db)
+	data.AdminService = item
+	data.ServiceChildren = childServicesHTML(db, item.ID, onlyPublished)
+	data.Article.ContentHTML = markdownHTML(item.Description)
+	renderTemplateStatus(w, "service.html", data, status, logger)
+}
+
+// childServicesHTML возвращает подуслуги раздела с Markdown-описаниями,
+// преобразованными в HTML для аккордеонов. includeDrafts — режим админки.
+func childServicesHTML(db *sql.DB, parentID int, onlyPublished bool) []AdminService {
+	var children []AdminService
+	if onlyPublished {
+		children = publishedChildServices(db, parentID)
+	} else {
+		all, _ := listAllServices(db)
+		for _, s := range all {
+			if s.ParentID == parentID {
+				children = append(children, s)
+			}
+		}
+	}
+	for i := range children {
+		children[i].Description = markdownHTML(children[i].Description)
+	}
+	return children
 }
 
 // newRouter собирает маршруты сайта и раздачу статических файлов.
@@ -147,6 +243,12 @@ func pageHandler(db *sql.DB, logger *log.Logger) http.HandlerFunc {
 			renderAdminForm(w, logger)
 		case r.URL.Path == "/admin":
 			http.Redirect(w, r, "/admin/articles/new", http.StatusSeeOther)
+		case strings.HasPrefix(r.URL.Path, "/services/preview/"):
+			if r.Method != http.MethodGet {
+				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			servicePreview(w, r, db, strings.TrimPrefix(r.URL.Path, "/services/preview/"), logger)
 		case strings.HasPrefix(r.URL.Path, "/services/"):
 			if r.Method != http.MethodGet {
 				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -225,24 +327,12 @@ func renderPublicPage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger
 			break
 		}
 		item, dbErr := serviceByID(db, value)
-		if dbErr == nil {
-			if item.Status != "published" {
-				name, status = "404.html", http.StatusNotFound
-			} else {
-				name = "service-db.html"
-				data.AdminService = item
-				data.ServiceChildren = publishedChildServices(db, item.ID)
-				data.Article.ContentHTML = markdownHTML(item.Description)
-			}
+		if dbErr != nil || item.Status != "published" {
+			name, status = "404.html", http.StatusNotFound
 			break
 		}
-		id, err := strconv.Atoi(value)
-		if err != nil || id < 1 || id > len(services) {
-			name, status = "404.html", http.StatusNotFound
-		} else {
-			name = "service.html"
-			data.Service = services[id-1]
-		}
+		renderServicePage(w, r, db, item, http.StatusOK, true, logger)
+		return
 	default:
 		name, status = "404.html", http.StatusNotFound
 	}
@@ -445,8 +535,8 @@ func renderAdminForm(w http.ResponseWriter, logger *log.Logger) {
 	}
 }
 
-// servicePage находит услугу в БД (по id или slug) и отображает динамический шаблон.
-// Для id 1-5, отсутствующих в БД, используется захардкоженная страница service.html.
+// servicePage находит услугу в БД (по id или slug) и отображает динамическую страницу.
+// Опубликованные услуги доступны всем; черновик — только по адресу /services/preview/<id>.
 func servicePage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger *log.Logger) {
 	value := strings.TrimPrefix(r.URL.Path, "/services/")
 	if value == "" || value == "new" || strings.Contains(value, "/") {
@@ -454,27 +544,26 @@ func servicePage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger *log
 		return
 	}
 
-	if item, err := serviceByID(db, value); err == nil {
-		if item.Status != "published" {
-			renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
-			return
-		}
-		data := publicPageData(db)
-		data.AdminService = item
-		data.Article.ContentHTML = markdownHTML(item.Description)
-		renderTemplate(w, "service-db.html", data, logger)
-		return
-	}
-
-	id, err := strconv.Atoi(value)
-	if err != nil || id < 1 || id > len(services) {
+	item, err := serviceByID(db, value)
+	if err != nil {
 		renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
 		return
 	}
+	if item.Status != "published" {
+		renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
+		return
+	}
+	renderServicePage(w, r, db, item, http.StatusOK, true, logger)
+}
 
-	data := publicPageData(db)
-	data.Service = services[id-1]
-	renderTemplate(w, "service.html", data, logger)
+// servicePreview показывает предпросмотр услуги из админки, включая черновики.
+func servicePreview(w http.ResponseWriter, r *http.Request, db *sql.DB, id string, logger *log.Logger) {
+	item, err := serviceByID(db, id)
+	if err != nil {
+		renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
+		return
+	}
+	renderServicePage(w, r, db, item, http.StatusOK, false, logger)
 }
 
 // renderTemplate выполняет шаблон с успешным HTTP-статусом.
@@ -497,6 +586,7 @@ func renderNamedTemplate(w http.ResponseWriter, name string, data PageData, logg
 		"service":               data.Service,
 		"db_service":            data.AdminService,
 		"db_services":           data.DBServices,
+		"service_children":      data.ServiceChildren,
 		"articles":              data.Articles,
 		"article":               data.Article,
 		"staff":                 data.Staff,
@@ -527,6 +617,7 @@ func renderTemplateStatus(w http.ResponseWriter, name string, data PageData, sta
 		"service":               data.Service,
 		"db_service":            data.AdminService,
 		"db_services":           data.DBServices,
+		"service_children":      data.ServiceChildren,
 		"articles":              data.Articles,
 		"article":               data.Article,
 		"staff":                 data.Staff,

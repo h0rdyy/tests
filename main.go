@@ -17,6 +17,8 @@ func main() {
 	if err := initContentTables(db); err != nil {
 		logger.Fatal(err)
 	}
+	seedLegacyServices(db, logger)
+	reserveNumericSlugs(db, logger)
 
 	server := &http.Server{
 		Addr:    ":8080",
