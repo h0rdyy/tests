@@ -212,6 +212,7 @@ func renderPublicPage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger
 			} else {
 				name = "service-db.html"
 				data.AdminService = item
+				data.Article.ContentHTML = markdownHTML(item.Description)
 			}
 			break
 		}
@@ -424,11 +425,11 @@ func renderAdminForm(w http.ResponseWriter, logger *log.Logger) {
 	}
 }
 
-// servicePage находит услугу в БД и отображает её динамический шаблон.
+// servicePage находит услугу в БД (по id или slug) и отображает динамический шаблон.
 // Для id 1-5, отсутствующих в БД, используется захардкоженная страница service.html.
 func servicePage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger *log.Logger) {
 	value := strings.TrimPrefix(r.URL.Path, "/services/")
-	if value == "" {
+	if value == "" || value == "new" || strings.Contains(value, "/") {
 		renderTemplateStatus(w, "404.html", publicPageData(db), http.StatusNotFound, logger)
 		return
 	}
@@ -440,6 +441,7 @@ func servicePage(w http.ResponseWriter, r *http.Request, db *sql.DB, logger *log
 		}
 		data := publicPageData(db)
 		data.AdminService = item
+		data.Article.ContentHTML = markdownHTML(item.Description)
 		renderTemplate(w, "service-db.html", data, logger)
 		return
 	}
