@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Услуги — Центр компетенций по кибербезопасности</title>
+  <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+<body class="page--sub">
+  {% include 'partials/header.html' %}
+  {% include 'partials/modal.html' %}
+
+  <main class="page services-page">
+    <h1 class="services-page__title">Услуги</h1>
+    <p class="services-page__subtitle">Выберите направление — каждая услуга открывается отдельной страницей с подробным описанием задач.</p>
+
+    {% for section in service_sections %}
+    <section class="services-page__section">
+      <h2 class="services-page__section-title">{{ section.Name }}</h2>
+      <div class="services-page__grid">
+        {% for s in section.Services %}
+        <a class="service-card" href="{{ s.URL }}">
+          <span class="service-card__icon">→</span>
+          <h3 class="service-card__title">{{ s.Title }}</h3>
+          {% if s.Summary %}<p class="service-card__summary">{{ s.Summary }}</p>{% endif %}
+          <span class="service-card__more">Подробнее</span>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% empty %}
+    <p class="services-page__empty">Услуги пока не добавлены.</p>
+    {% endfor %}
+
+    <section class="section" id="lead-footer">
+      <h2 class="section__title">Не нашли подходящее направление?</h2>
+      <div class="lead-block">
+        <p class="lead-block__text">Оставьте номер телефона — мы перезвоним и подберём решение под вашу задачу.</p>
+        <button type="button" class="btn btn--primary" data-open-modal>Оставить заявку</button>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>

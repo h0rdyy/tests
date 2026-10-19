@@ -178,9 +178,9 @@ func saveAdminService(w http.ResponseWriter, r *http.Request, db *sql.DB, id str
 	}
 	var err error
 	if id == "" {
-		_, err = db.Exec(`INSERT INTO services(direction,title,description,slug,parent_id,status,created_at,updated_at) VALUES(?,?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, direction, title, r.FormValue("description"), slug, parentID, status)
+		_, err = db.Exec(`INSERT INTO services(direction,title,description,summary,slug,parent_id,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, direction, title, r.FormValue("description"), strings.TrimSpace(r.FormValue("summary")), slug, parentID, status)
 	} else {
-		_, err = db.Exec(`UPDATE services SET direction=?,title=?,description=?,slug=?,parent_id=?,status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`, direction, title, r.FormValue("description"), slug, parentID, status, id)
+		_, err = db.Exec(`UPDATE services SET direction=?,title=?,description=?,summary=?,slug=?,parent_id=?,status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`, direction, title, r.FormValue("description"), strings.TrimSpace(r.FormValue("summary")), slug, parentID, status, id)
 	}
 	if err != nil {
 		logger.Printf("save service: %v", err)

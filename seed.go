@@ -79,8 +79,8 @@ func seedLegacyServices(db *sql.DB, logger *log.Logger) {
 	for _, s := range services {
 		intro := legacyServiceIntro[s.ID]
 		slug := strconv.Itoa(s.ID)
-		res, err := db.Exec(`INSERT INTO services(direction,title,description,slug,parent_id,status,created_at,updated_at) VALUES(?,?,?,?,0,'published',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
-			s.Title, s.Title, intro, slug)
+		res, err := db.Exec(`INSERT INTO services(direction,title,description,summary,slug,parent_id,status,created_at,updated_at) VALUES(?,?,?,?,?,0,'published',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+			s.Title, s.Title, intro, "", slug)
 		if err != nil {
 			logger.Printf("seed service %d: %v", s.ID, err)
 			return
@@ -99,8 +99,8 @@ func seedLegacyServices(db *sql.DB, logger *log.Logger) {
 				if blockSlug == "" {
 					blockSlug = "service"
 				}
-				if _, err := db.Exec(`INSERT INTO services(direction,title,description,slug,parent_id,status,created_at,updated_at) VALUES(?,?,?,?,?,'published',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
-					block.Direction, block.Title, block.Description, blockSlug, parentID); err != nil {
+				if _, err := db.Exec(`INSERT INTO services(direction,title,description,summary,slug,parent_id,status,created_at,updated_at) VALUES(?,?,?,?,?,?,'published',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+					block.Direction, block.Title, block.Description, "", blockSlug, parentID); err != nil {
 					logger.Printf("seed child %q: %v", block.Title, err)
 					return
 				}

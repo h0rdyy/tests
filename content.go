@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -25,9 +26,46 @@ type AdminService struct {
 	Direction   string
 	Title       string
 	Description string
+	Summary     string
 	Slug        string
 	ParentID    int
 	Status      string
+}
+
+// ServiceSection — раздел страницы /services: направление и его услуги-карточки.
+type ServiceSection struct {
+	Name     string
+	Services []AdminService
+}
+
+// publishedServiceSections собирает опубликованные услуги-разделы (parent_id=0)
+// в секции по направлению; порядок секций соответствует списку directions,
+// неизвестные направления добавляются в конце.
+func publishedServiceSections(db *sql.DB) []ServiceSection {
+	order := map[string]int{}
+	for i, d := range directions {
+		order[d] = i
+	}
+	var top []AdminService
+	for _, s := range listPublishedServices(db) {
+		if s.ParentID == 0 {
+			top = append(top, s)
+		}
+	}
+	grouped := make(map[string][]AdminService)
+	var names []string
+	for _, s := range top {
+		if _, ok := grouped[s.Direction]; !ok {
+			names = append(names, s.Direction)
+		}
+		grouped[s.Direction] = append(grouped[s.Direction], s)
+	}
+	sort.SliceStable(names, func(i, j int) bool { return order[names[i]] < order[names[j]] })
+	sections := make([]ServiceSection, 0, len(names))
+	for _, n := range names {
+		sections = append(sections, ServiceSection{Name: n, Services: grouped[n]})
+	}
+	return sections
 }
 
 // URL возвращает адрес публичной страницы услуги: slug, иначе id.
@@ -65,6 +103,7 @@ func initContentTables(db *sql.DB) error {
 			direction TEXT NOT NULL,
 			title TEXT NOT NULL,
 			description TEXT,
+			summary TEXT NOT NULL DEFAULT '',
 			slug TEXT NOT NULL DEFAULT '',
 			parent_id INTEGER NOT NULL DEFAULT 0,
 			status TEXT NOT NULL DEFAULT 'draft',
@@ -76,6 +115,7 @@ func initContentTables(db *sql.DB) error {
 	}
 	// Миграции для таблиц, созданных в старых версиях схемы.
 	for _, column := range []struct{ table, name, typ string }{
+		{"services", "summary", "TEXT NOT NULL DEFAULT ''"},
 		{"services", "slug", "TEXT NOT NULL DEFAULT ''"},
 		{"services", "parent_id", "INTEGER NOT NULL DEFAULT 0"},
 	} {
@@ -105,7 +145,7 @@ func hasColumn(db *sql.DB, table, column string) bool {
 }
 
 const staffColumns = `id,full_name,position,short_info,practice,photo_url,status`
-const serviceColumns = `id,direction,title,description,slug,parent_id,status`
+const serviceColumns = `id,direction,title,description,summary,slug,parent_id,status`
 
 // listPublishedStaff возвращает опубликованных сотрудников.
 func listPublishedStaff(db *sql.DB) []Staff {
@@ -142,7 +182,7 @@ func listPublishedServices(db *sql.DB) []AdminService {
 	var result []AdminService
 	for rows.Next() {
 		var item AdminService
-		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status) == nil {
+		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Summary, &item.Slug, &item.ParentID, &item.Status) == nil {
 			result = append(result, item)
 		}
 	}
@@ -168,7 +208,7 @@ func publishedChildServices(db *sql.DB, parentID int) []AdminService {
 	var result []AdminService
 	for rows.Next() {
 		var item AdminService
-		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status) == nil {
+		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Summary, &item.Slug, &item.ParentID, &item.Status) == nil {
 			result = append(result, item)
 		}
 	}
@@ -185,7 +225,7 @@ func listAllServices(db *sql.DB) ([]AdminService, error) {
 	var result []AdminService
 	for rows.Next() {
 		var item AdminService
-		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status) == nil {
+		if rows.Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Summary, &item.Slug, &item.ParentID, &item.Status) == nil {
 			result = append(result, item)
 		}
 	}
@@ -196,13 +236,13 @@ func listAllServices(db *sql.DB) ([]AdminService, error) {
 func serviceByID(db *sql.DB, key string) (AdminService, error) {
 	var item AdminService
 	err := db.QueryRow(`SELECT `+serviceColumns+` FROM services WHERE id=?`, key).
-		Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status)
+		Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Summary, &item.Slug, &item.ParentID, &item.Status)
 	if err == nil {
 		return item, nil
 	}
 	if !isNumeric(key) {
 		err = db.QueryRow(`SELECT `+serviceColumns+` FROM services WHERE slug<>'' AND slug=?`, key).
-			Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Slug, &item.ParentID, &item.Status)
+			Scan(&item.ID, &item.Direction, &item.Title, &item.Description, &item.Summary, &item.Slug, &item.ParentID, &item.Status)
 	}
 	return item, err
 }

@@ -76,6 +76,7 @@ type PageData struct {
 	AdminService             AdminService
 	AdminServices            []AdminService
 	DBServices               []AdminService
+	ServiceSections          []ServiceSection
 	ServiceNav               []AdminService
 	ServiceChildren          []AdminService
 }
@@ -157,6 +158,7 @@ func publicPageData(db *sql.DB) PageData {
 		Services:                 serviceNav(db),
 		AdminServicesByDirection: publishedServicesByDirection(db),
 		DBServices:               listPublishedServices(db),
+		ServiceSections:          publishedServiceSections(db),
 	}
 }
 
@@ -243,6 +245,12 @@ func pageHandler(db *sql.DB, logger *log.Logger) http.HandlerFunc {
 			renderAdminForm(w, logger)
 		case r.URL.Path == "/admin":
 			http.Redirect(w, r, "/admin/articles/new", http.StatusSeeOther)
+		case r.URL.Path == "/services":
+			if r.Method != http.MethodGet {
+				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			renderTemplate(w, "services.html", publicPageData(db), logger)
 		case strings.HasPrefix(r.URL.Path, "/services/preview/"):
 			if r.Method != http.MethodGet {
 				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -594,6 +602,7 @@ func renderNamedTemplate(w http.ResponseWriter, name string, data PageData, logg
 		"admin_service":         data.AdminService,
 		"admin_services":        data.AdminServices,
 		"services_by_direction": data.AdminServicesByDirection,
+		"service_sections":      data.ServiceSections,
 		"directions":            directions,
 	}, w); err != nil {
 		logger.Printf("template execute error %s: %v", name, err)
@@ -625,6 +634,7 @@ func renderTemplateStatus(w http.ResponseWriter, name string, data PageData, sta
 		"admin_service":         data.AdminService,
 		"admin_services":        data.AdminServices,
 		"services_by_direction": data.AdminServicesByDirection,
+		"service_sections":      data.ServiceSections,
 		"directions":            directions,
 	}, w); err != nil {
 		logger.Printf("template execute error %s: %v", name, err)

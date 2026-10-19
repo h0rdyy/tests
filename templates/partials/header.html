@@ -17,14 +17,7 @@
     <div class="header__menu" id="header-menu">
       <nav class="nav" aria-label="Основное меню">
         <a class="nav__link" href="/about">О нас</a>
-        <div class="nav__item nav__item--dropdown">
-          <span class="nav__link nav__dropdown-toggle" tabindex="0">Услуги</span>
-          <ul class="nav__sub">
-            {% for s in services %}
-            <li><a href="/services/{{ s.ID }}">{{ s.Title }}</a></li>
-            {% endfor %}
-          </ul>
-        </div>
+        <a class="nav__link" href="/services">Услуги</a>
         <a class="nav__link" href="/expertise">Экспертиза</a>
         <a class="nav__link" href="/experts">Команда</a>
       </nav>
@@ -35,7 +28,6 @@
     document.addEventListener("DOMContentLoaded", function () {
       const burgerBtn = document.getElementById("burger-btn");
       const headerMenu = document.getElementById("header-menu");
-      const dropdownToggle = document.querySelector(".nav__dropdown-toggle"); 
       const siteHeader = document.getElementById("site-header"); 
       const headerInner = document.querySelector(".site-header__inner"); 
 
@@ -90,15 +82,6 @@
         }
       });
 
-      if (dropdownToggle) {
-        dropdownToggle.addEventListener("click", function (e) {
-          if (window.innerWidth <= 900) {
-            e.preventDefault(); 
-            const parentDropdown = this.closest(".nav__item--dropdown");
-            parentDropdown.classList.toggle("is-open");
-          }
-        });
-      }
     });
   </script>
 </header>
