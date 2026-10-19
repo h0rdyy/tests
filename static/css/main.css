@@ -2531,8 +2531,10 @@ body, html {
 .expert-card a { color:#fff; text-decoration:none; }
 .expert-card h2 { margin:.4rem 0; }
 .expert-card p { color:#a0a0b0; line-height:1.5; }
-.expert-profile { display:grid; grid-template-columns: minmax(220px, .8fr) 1.2fr; gap:40px; margin-top:30px; }
-.expert-profile img { width:100%; border-radius:20px; }
+.expert-profile { display:grid; grid-template-columns: minmax(220px, .8fr) 1.2fr; gap:40px; margin-top:30px; align-items:start; }
+.expert-profile__photo { position:sticky; top:6rem; }
+.expert-profile__photo img { width:100%; border-radius:20px; object-fit:cover; aspect-ratio:3/4; }
+.expert-profile__content { min-width:0; }
 .expert-profile h2 { color:#a78bfa; }
 .expert-profile h3 { color:#fff; margin-top:28px; }
-@media(max-width:800px){.experts-grid{grid-template-columns:1fr}.expert-profile{grid-template-columns:1fr}}
+@media(max-width:800px){.experts-grid{grid-template-columns:1fr}.expert-profile{grid-template-columns:1fr}.expert-profile__photo{position:static;max-width:280px}}
